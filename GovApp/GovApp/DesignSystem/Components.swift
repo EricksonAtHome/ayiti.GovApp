@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// The bordered text field used across sign-in.
 struct BrandTextField: View {

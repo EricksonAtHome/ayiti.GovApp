@@ -98,7 +98,8 @@ private struct ChatContent: View {
             .scrollIndicators(.hidden)
             .scrollDismissesKeyboard(.interactively)
             .onChange(of: model.messages.count) { _, _ in
-                withAnimation { proxy.scrollTo(model.messages.last?.id, anchor: .bottom) }
+                guard let last = model.messages.last else { return }
+                withAnimation { proxy.scrollTo(last.id, anchor: .bottom) }
             }
             .onChange(of: model.isReplying) { _, isReplying in
                 guard isReplying else { return }

@@ -78,7 +78,7 @@ extension Session {
             username: value("username") ?? "",
             govURLID: value("gov_url_id") ?? "",
             expiresAt: now.addingTimeInterval(
-                value("expires_in").flatMap(TimeInterval.init) ?? grant.ttl
+                value("expires_in").flatMap { TimeInterval($0) } ?? grant.ttl
             )
         )
     }

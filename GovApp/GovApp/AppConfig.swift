@@ -31,16 +31,16 @@ struct AppConfig: Sendable {
         }
 
         identityBaseURL = read("GOVAPP_IDENTITY_BASE_URL")
-            .flatMap(URL.init(string:)) ?? Fallback.identityBaseURL
+            .flatMap { URL(string: $0) } ?? Fallback.identityBaseURL
         identityMode = read("GOVAPP_IDENTITY_MODE")
-            .flatMap(IdentityMode.init(rawValue:)) ?? .direct
+            .flatMap { IdentityMode(rawValue: $0) } ?? .direct
         callbackScheme = read("GOVAPP_CALLBACK_SCHEME") ?? "govapp"
         sessionTTL = read("GOVAPP_SESSION_TTL_SECONDS")
-            .flatMap(TimeInterval.init) ?? 1800
+            .flatMap { TimeInterval($0) } ?? 1800
         aiBaseURL = read("GOVAPP_AI_BASE_URL")
-            .flatMap(URL.init(string:)) ?? Fallback.aiBaseURL
+            .flatMap { URL(string: $0) } ?? Fallback.aiBaseURL
         aiModel = read("GOVAPP_AI_MODEL") ?? "ellofive"
-        contextTurns = read("GOVAPP_AI_CONTEXT_TURNS").flatMap(Int.init) ?? 6
+        contextTurns = read("GOVAPP_AI_CONTEXT_TURNS").flatMap { Int($0) } ?? 6
     }
 
     /// Used only when Info.plist is missing a key — a misconfigured build should

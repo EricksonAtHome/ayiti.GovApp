@@ -83,7 +83,15 @@ keep it that way.
 
 ## Expiry
 
-`SessionStore.isValid` compares `expiresAt` against `Date()` with a 30-second
-skew allowance. Any `401`/`410` from a downstream call (including GOVTalk) must
-call `signOut()` so the citizen lands on the welcome screen rather than a broken
-chat.
+`Session.isValid` compares `expiresAt` against `Date()` with a 30-second skew
+allowance, and `RootView` calls `discardIfExpired()` whenever the app returns to
+the foreground so a session cannot outlive its window while backgrounded.
+
+Any service that maps a failure to `AppError.grantExpired` must let it reach the
+view model, which calls `signOut()` — the citizen lands back on the welcome
+screen rather than in a broken chat. Today only `IdentityService` produces that
+error; the ElloFive bridge is unauthenticated and reports everything as
+`assistantUnavailable`.
+
+`signOut()` keeps `lastKnownProfile` so the welcome screen can greet a returning
+citizen by name. Use `forget()` when the citizen should be erased entirely.

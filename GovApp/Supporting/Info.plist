@@ -35,10 +35,6 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
-	<key>UIRequiredDeviceCapabilities</key>
-	<array>
-		<string>armv7</string>
-	</array>
 
 	<!-- Callback the hosted GovID page redirects to: govapp://auth/callback -->
 	<key>CFBundleURLTypes</key>

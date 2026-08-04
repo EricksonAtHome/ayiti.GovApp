@@ -1,0 +1,92 @@
+import XCTest
+
+@testable import GovApp
+
+final class PromptBuilderTests: XCTestCase {
+    func testPersonaLeadsEveryPrompt() {
+        let builder = PromptBuilder(contextTurns: 6, persona: "PERSONA")
+        let prompt = builder.build(prompt: "Bonjou", history: [])
+
+        XCTAssertTrue(prompt.hasPrefix("PERSONA"))
+        XCTAssertTrue(prompt.contains("Sitwayen: Bonjou"))
+        XCTAssertTrue(prompt.hasSuffix("GOVTalk:"), "the model is cued to answer next")
+    }
+
+    func testHistoryIsCappedToTheConfiguredTurns() {
+        let history = (0..<20).map { index in
+            ChatMessage(author: index.isMultiple(of: 2) ? .citizen : .assistant, text: "m\(index)")
+        }
+        let prompt = PromptBuilder(contextTurns: 2, persona: "P")
+            .build(prompt: "kounye a", history: history)
+
+        XCTAssertTrue(prompt.contains("m16"))
+        XCTAssertFalse(prompt.contains("m15"), "only the last 2 turns (4 messages) are replayed")
+    }
+
+    func testZeroContextTurnsSendsOnlyTheNewPrompt() {
+        let prompt = PromptBuilder(contextTurns: 0, persona: "P")
+            .build(prompt: "sèl", history: [ChatMessage(author: .citizen, text: "ansyen")])
+
+        XCTAssertFalse(prompt.contains("ansyen"))
+        XCTAssertTrue(prompt.contains("sèl"))
+    }
+}
+
+final class ChatErrorMappingTests: XCTestCase {
+    func testBridgeFailuresReadAsAnUnavailableAssistant() {
+        XCTAssertEqual(EllofiveClient.appError(for: .status(502)), .assistantUnavailable)
+        XCTAssertEqual(EllofiveClient.appError(for: .status(400)), .assistantUnavailable)
+        XCTAssertEqual(EllofiveClient.appError(for: .decoding), .assistantUnavailable)
+        XCTAssertEqual(EllofiveClient.appError(for: .transport), .network)
+    }
+}
+
+@MainActor
+final class ChatViewModelTests: XCTestCase {
+    private func makeSessions() -> SessionStore {
+        SessionStore(secrets: InMemorySecretStore(), defaults: freshDefaults())
+    }
+
+    func testSendAppendsBothTurnsAndClearsTheDraft() async {
+        let model = ChatViewModel(chat: StubChatService(canned: "Repons lan", delay: .zero))
+        model.draft = "  Bonjou  "
+
+        await model.send(from: makeSessions())
+
+        XCTAssertEqual(model.messages.count, 2)
+        XCTAssertEqual(model.messages.first?.text, "Bonjou", "the draft is trimmed")
+        XCTAssertEqual(model.messages.first?.author, .citizen)
+        XCTAssertEqual(model.messages.last?.text, "Repons lan")
+        XCTAssertTrue(model.draft.isEmpty)
+        XCTAssertNil(model.notice)
+    }
+
+    func testBlankDraftIsNotSent() async {
+        let model = ChatViewModel(chat: StubChatService(delay: .zero))
+        model.draft = "   "
+
+        XCTAssertFalse(model.canSend)
+        await model.send(from: makeSessions())
+        XCTAssertTrue(model.messages.isEmpty)
+    }
+
+    func testUnreachableRuntimeSurfacesAnOfflineNotice() async {
+        let model = ChatViewModel(chat: StubChatService(delay: .zero, reachable: false))
+        model.draft = "Bonjou"
+
+        await model.send(from: makeSessions())
+
+        XCTAssertTrue(model.isOffline)
+        XCTAssertEqual(model.notice, L10n.Failure.assistantUnavailable)
+        XCTAssertEqual(model.messages.count, 1, "only the citizen's turn was recorded")
+    }
+
+    func testGreetingIsSeededOnceAndOnlyWhenEmpty() {
+        let model = ChatViewModel(chat: StubChatService())
+        model.greet("Jean")
+        model.greet("Jean")
+
+        XCTAssertEqual(model.messages.count, 1)
+        XCTAssertEqual(model.messages.first?.author, .assistant)
+    }
+}
