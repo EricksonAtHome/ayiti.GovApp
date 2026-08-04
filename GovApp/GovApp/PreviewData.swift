@@ -11,6 +11,29 @@ extension Session {
     )
 }
 
+/// Keeps previews and tests off the Keychain.
+final class InMemorySecretStore: SecretStore, @unchecked Sendable {
+    private let lock = NSLock()
+    private var storage: [String: String] = [:]
+
+    func set(_ value: String, for account: String) {
+        lock.withLock { storage[account] = value }
+    }
+
+    func string(for account: String) -> String? {
+        lock.withLock { storage[account] }
+    }
+
+    func delete(_ account: String) {
+        _ = lock.withLock { storage.removeValue(forKey: account) }
+    }
+}
+
+extension UserDefaults {
+    /// A throwaway suite so previews and tests never disturb real state.
+    static let previewSuite = UserDefaults(suiteName: "io.ayiti.govapp.previews") ?? .standard
+}
+
 extension ChatMessage {
     static let previewTranscript: [ChatMessage] = [
         ChatMessage(

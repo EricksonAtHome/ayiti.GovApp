@@ -21,6 +21,13 @@ struct KeychainSecretStore: SecretStore {
 @Observable
 @MainActor
 final class SessionStore {
+    /// Display identity, kept after sign-out so the welcome screen can greet a
+    /// returning citizen by name. Contains no credential.
+    struct Profile: Sendable, Equatable {
+        let username: String
+        let govURLID: String
+    }
+
     private enum Key {
         static let token = "io.ayiti.govapp.session"
         static let username = "govapp.username"
@@ -29,6 +36,7 @@ final class SessionStore {
     }
 
     private(set) var session: Session?
+    private(set) var lastKnownProfile: Profile?
 
     @ObservationIgnored private let secrets: SecretStore
     @ObservationIgnored private let defaults: UserDefaults
@@ -36,6 +44,7 @@ final class SessionStore {
     init(secrets: SecretStore = KeychainSecretStore(), defaults: UserDefaults = .standard) {
         self.secrets = secrets
         self.defaults = defaults
+        lastKnownProfile = loadProfile()
         session = loadPersisted()
     }
 
@@ -43,24 +52,40 @@ final class SessionStore {
 
     func save(_ session: Session) {
         self.session = session
+        lastKnownProfile = Profile(username: session.username, govURLID: session.govURLID)
         secrets.set(session.token, for: Key.token)
         defaults.set(session.username, forKey: Key.username)
         defaults.set(session.govURLID, forKey: Key.govURLID)
         defaults.set(session.expiresAt.timeIntervalSince1970, forKey: Key.expiresAt)
     }
 
+    /// Ends the session but remembers who the citizen is.
     func signOut() {
         session = nil
         secrets.delete(Key.token)
+        defaults.removeObject(forKey: Key.expiresAt)
+    }
+
+    /// Ends the session and forgets the citizen entirely.
+    func forget() {
+        signOut()
+        lastKnownProfile = nil
         defaults.removeObject(forKey: Key.username)
         defaults.removeObject(forKey: Key.govURLID)
-        defaults.removeObject(forKey: Key.expiresAt)
     }
 
     /// Drops the session if it has aged out since the app was last foregrounded.
     func discardIfExpired(at now: Date = .now) {
         guard let session, !session.isValid(at: now) else { return }
         signOut()
+    }
+
+    private func loadProfile() -> Profile? {
+        guard let username = defaults.string(forKey: Key.username) else { return nil }
+        return Profile(
+            username: username,
+            govURLID: defaults.string(forKey: Key.govURLID) ?? ""
+        )
     }
 
     private func loadPersisted() -> Session? {
@@ -70,8 +95,8 @@ final class SessionStore {
 
         let restored = Session(
             token: token,
-            username: defaults.string(forKey: Key.username) ?? "",
-            govURLID: defaults.string(forKey: Key.govURLID) ?? "",
+            username: lastKnownProfile?.username ?? "",
+            govURLID: lastKnownProfile?.govURLID ?? "",
             expiresAt: Date(timeIntervalSince1970: expiry)
         )
         guard restored.isValid() else {

@@ -93,9 +93,10 @@ right-aligned attribution row above its text:
 - Assistant: "GOVTalk AI" in `micro` + a 14pt `AyitiMark`.
 - Citizen: `{username}` in `micro` + a 24pt avatar circle.
 
-Message text is plain — `body` size on the background, no bubble fill, max width
-82% of the screen. Assistant text is leading-aligned; citizen text is inset from
-the leading edge so the two read as distinct columns.
+Message text is plain — `body` size on the background, no bubble fill. Each row
+is inset 56pt on the edge opposite its speaker (citizen rows from the leading
+edge, assistant rows from the trailing edge) so the two read as distinct
+columns without needing bubbles.
 
 Composer pinned to the bottom: a `Brand.surface` rounded rect at
 `composerRadius`, 64pt tall, placeholder "what can i help you", with a

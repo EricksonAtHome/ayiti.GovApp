@@ -35,6 +35,13 @@ enum L10n {
         static let thinking = "GOVTalk ap reflechi…"
         static let signOut = "Dekonekte"
 
+        /// Seeded locally when the screen opens; never comes from the model.
+        static func greeting(_ name: String) -> String {
+            name.isEmpty
+                ? "Bonjou! Kijan m ka ede w jodi a?"
+                : "Bonjou \(name)! Kijan m ka ede w jodi a?"
+        }
+
         /// Prepended to every request so the model answers as GOVTalk rather
         /// than as ElloFive. Kept short — it is re-sent on every turn.
         static let systemPersona = """
