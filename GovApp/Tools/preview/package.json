@@ -1,0 +1,12 @@
+{
+  "name": "govapp-preview",
+  "private": true,
+  "type": "module",
+  "description": "Renders GovApp's screens in a browser to produce the README images",
+  "scripts": {
+    "capture": "node capture.mjs"
+  },
+  "dependencies": {
+    "puppeteer-core": "^25.5.0"
+  }
+}

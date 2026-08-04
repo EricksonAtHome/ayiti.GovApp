@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="ht">
+<head>
+<meta charset="utf-8" />
+<title>GovApp — design preview</title>
+<!--
+  A browser reproduction of GovApp's three screens, used to produce the
+  images in the README. It is NOT the app: it is a rendering of the same
+  design tokens, because an iOS app cannot be built or run on Linux.
+
+  Every value below is copied from GovApp/DesignSystem/Theme.swift and the
+  mark geometry from AyitiGeometry. If you change a token in Swift, change
+  it here too or the README images stop telling the truth.
+-->
+<style>
+  :root {
+    --blue: #1450C8;
+    --red: #ED2338;
+    --action: #4C8DFF;
+    --ink: #111114;
+    --ink-muted: #6B7076;
+    --placeholder: #9AA0A6;
+    --line: #E3E5E8;
+    --surface: #F2F3F5;
+    --background: #FFFFFF;
+
+    --gutter: 24px;
+    --field-height: 56px;
+    --wide-button-height: 64px;
+    --radius: 12px;
+    --composer-radius: 16px;
+    --stack: 12px;
+    --section: 28px;
+
+    --safe-top: 59px;
+    --safe-bottom: 34px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #fff;
+    font-family: Inter, -apple-system, "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    gap: 48px;
+    padding: 48px;
+  }
+
+  .device {
+    width: 393px;
+    height: 852px;
+    background: var(--background);
+    color: var(--ink);
+    position: relative;
+    overflow: hidden;
+    flex: none;
+  }
+
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    padding: var(--safe-top) var(--gutter) var(--safe-bottom);
+  }
+  .screen.active { display: flex; }
+
+  .spacer { flex: 1 1 auto; }
+
+  /* ---- ayiti.io lockup ---------------------------------------------- */
+  .lockup { display: flex; align-items: center; gap: 7.5px; }
+  .lockup .wordmark {
+    font-size: 30px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  /* ---- shared controls ----------------------------------------------- */
+  .field {
+    height: var(--field-height);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    font-size: 17px;
+    color: var(--ink);
+  }
+  .field.empty { color: var(--placeholder); }
+
+  .btn {
+    background: var(--action);
+    color: #fff;
+    border-radius: var(--radius);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .btn.hugging {
+    height: var(--field-height);
+    padding: 0 40px;
+    font-size: 17px;
+    font-weight: 600;
+    align-self: flex-start;
+  }
+  .btn.wide {
+    height: var(--wide-button-height);
+    width: 100%;
+    font-size: 20px;
+    font-weight: 400;
+  }
+  .btn[disabled] { opacity: .45; }
+
+  .avatar {
+    background: var(--surface);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-muted);
+    font-weight: 600;
+    flex: none;
+  }
+
+  .footer-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+  }
+  .footer-row .label { color: var(--ink-muted); }
+  .footer-row .value { font-variant-numeric: tabular-nums; }
+
+  /* ---- screen 1: sign in ---------------------------------------------- */
+  .signin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 8px;
+  }
+  .close { color: var(--ink-muted); font-size: 15px; font-weight: 600; }
+  .title { font-size: 28px; font-weight: 700; margin-top: var(--section); line-height: 1.15; }
+  .fields { margin-top: var(--section); display: flex; flex-direction: column; gap: var(--stack); }
+  .notice {
+    margin-top: var(--stack);
+    background: rgba(237, 35, 56, .08);
+    color: var(--red);
+    border-radius: var(--radius);
+    padding: 12px;
+    font-size: 13px;
+  }
+  .signin-submit { margin-top: var(--section); }
+  .signin-footer { display: flex; flex-direction: column; gap: 6px; padding-bottom: var(--stack); }
+  .copyright { display: flex; align-items: center; gap: 6px; padding-top: 4px; font-size: 13px; color: var(--ink-muted); }
+  .repiblik { display: flex; align-items: center; gap: 2.7px; font-size: 15px; font-weight: 700; color: var(--ink); }
+  .flag { width: 12.3px; height: 12.3px; border-radius: 1px; overflow: hidden; display: flex; flex-direction: column; }
+  .flag i { flex: 1; display: block; }
+  .flag i:first-child { background: var(--blue); }
+  .flag i:last-child { background: var(--red); }
+
+  /* ---- screen 2: chat -------------------------------------------------- */
+  .chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 8px;
+    padding-bottom: var(--section);
+  }
+  .chat-header .who { display: flex; align-items: center; gap: 12px; font-size: 17px; }
+  .transcript {
+    flex: 1 1 auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: var(--section);
+  }
+  .row { display: flex; flex-direction: column; gap: 8px; }
+  .row.assistant { padding-right: 56px; }
+  .row.citizen { padding-left: 56px; }
+  .attribution {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .attribution.citizen { color: var(--ink-muted); }
+  .row .text { font-size: 17px; line-height: 1.3; }
+  .thinking { font-size: 13px; color: var(--ink-muted); }
+  .composer {
+    min-height: var(--wide-button-height);
+    background: var(--surface);
+    border-radius: var(--composer-radius);
+    display: flex;
+    align-items: center;
+    gap: var(--stack);
+    padding: 0 20px;
+  }
+  .composer .draft { flex: 1; font-size: 17px; color: var(--ink); }
+  .composer .draft.empty { color: var(--placeholder); }
+  .composer .send { color: var(--placeholder); display: flex; }
+  .composer .send.on { color: var(--ink); }
+  .gov-url { text-align: center; font-size: 10px; font-weight: 600; color: var(--ink-muted); padding-top: 6px; }
+
+  /* ---- screen 3: welcome ----------------------------------------------- */
+  .welcome { align-items: center; }
+  .welcome .top { height: 40px; flex: none; }
+  .welcome .name { font-size: 40px; font-weight: 700; margin-top: var(--section); }
+  .welcome .gov { font-size: 13px; color: var(--ink-muted); margin-top: 2px; }
+  .welcome .btn { margin-bottom: var(--stack); }
+</style>
+</head>
+<body>
+
+<template id="mark">
+  <svg viewBox="190 195 648 610" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="435,195 555,195 660,355 190,805" fill="#1450C8"/>
+    <path fill-rule="evenodd" fill="#ED2338"
+      d="M678,408 L448,652 L562,656 L648,805 L838,805 Z
+         M654,735 a62,62 0 1,0 124,0 a62,62 0 1,0 -124,0 Z"/>
+  </svg>
+</template>
+
+<template id="plane">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M21.6 2.4 L2.9 9.6c-.55.21-.53.99.03 1.17l7.2 2.3 2.3 7.2c.18.56.96.58 1.17.03z"/>
+    <path d="M21.6 2.4 L10.13 13.07"/>
+  </svg>
+</template>
+
+<div class="device" id="device"></div>
+
+<script type="module">
+const L10n = {
+  title: 'Bonjou, konekte isit la',
+  hid: 'Idantite Ayiti (HID)',
+  pin: 'Kòd sekrè (Pin)',
+  submit: 'Konekte',
+  working: 'N ap verifye…',
+  sessionID: 'Session ID:',
+  expiresIn: 'Expires in:',
+  copyright: '© 2026 ayiti.io from',
+  login: 'login',
+  assistant: 'GOVTalk AI',
+  composer: 'what can i help you',
+  thinking: 'GOVTalk ap reflechi…',
+};
+
+export const state = {
+  screen: 'welcome',
+  username: 'Jean Baptiste',
+  govURLID: 'gov.ayiti.io/jbaptiste',
+  hid: '',
+  pin: '',
+  working: false,
+  grantMask: '***764d77',
+  countdown: '29:50',
+  messages: [],
+  draft: '',
+  replying: false,
+};
+
+const mark = (size) => {
+  const svg = document.getElementById('mark').content.firstElementChild.cloneNode(true);
+  svg.setAttribute('height', size);
+  svg.setAttribute('width', size * (648 / 610));
+  return svg.outerHTML;
+};
+
+const plane = () => {
+  const svg = document.getElementById('plane').content.firstElementChild.cloneNode(true);
+  svg.setAttribute('width', 26);
+  svg.setAttribute('height', 26);
+  return svg.outerHTML;
+};
+
+const lockup = () => `<div class="lockup">${mark(34)}<span class="wordmark">ayiti.io</span></div>`;
+const avatar = (size, initial) =>
+  `<div class="avatar" style="width:${size}px;height:${size}px;font-size:${size * 0.42}px">${initial ?? ''}</div>`;
+const initial = () => (state.username ? state.username[0].toUpperCase() : '');
+const esc = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+
+function welcome() {
+  return `
+  <section class="screen welcome active">
+    <div class="top"></div>
+    ${avatar(245, initial())}
+    <div class="name">${esc(state.username)}</div>
+    <div class="gov">${esc(state.govURLID)}</div>
+    <div class="spacer"></div>
+    <button class="btn wide">${L10n.login}</button>
+  </section>`;
+}
+
+function signin() {
+  const canSubmit = state.hid.trim() && state.pin && !state.working;
+  return `
+  <section class="screen active">
+    <div class="signin-header">${lockup()}<span class="close">✕</span></div>
+    <h1 class="title">${L10n.title}</h1>
+    <div class="fields">
+      <div class="field ${state.hid ? '' : 'empty'}">${esc(state.hid || L10n.hid)}</div>
+      <div class="field ${state.pin ? '' : 'empty'}">${state.pin ? '•'.repeat(state.pin.length) : L10n.pin}</div>
+    </div>
+    <div class="signin-submit">
+      <button class="btn hugging" ${canSubmit ? '' : 'disabled'}>
+        ${state.working ? L10n.working : L10n.submit}
+      </button>
+    </div>
+    <div class="spacer"></div>
+    <div class="signin-footer">
+      <div class="footer-row">
+        <span class="label">${L10n.sessionID}</span>
+        <span class="value" style="color:var(--action)">${state.grantMask}</span>
+      </div>
+      <div class="footer-row">
+        <span class="label">${L10n.expiresIn}</span>
+        <span class="value">${state.countdown}</span>
+      </div>
+      <div class="copyright">
+        <span>${L10n.copyright}</span>
+        <span class="repiblik">Repiblik<span class="flag"><i></i><i></i></span>Ayiti</span>
+      </div>
+    </div>
+  </section>`;
+}
+
+function chat() {
+  const rows = state.messages.map((m) => `
+    <div class="row ${m.author}">
+      <div class="attribution ${m.author}">
+        ${m.author === 'assistant'
+          ? `<span>${L10n.assistant}</span>${mark(14)}`
+          : `<span>${esc(state.username)}</span>${avatar(24, initial())}`}
+      </div>
+      <div class="text">${esc(m.text)}</div>
+    </div>`).join('');
+
+  return `
+  <section class="screen active">
+    <div class="chat-header">
+      ${lockup()}
+      <div class="who"><span>${esc(state.username)}</span>${avatar(44, initial())}</div>
+    </div>
+    <div class="transcript">
+      ${rows}
+      ${state.replying ? `<div class="thinking">${L10n.thinking}</div>` : ''}
+    </div>
+    <div class="composer">
+      <span class="draft ${state.draft ? '' : 'empty'}">${esc(state.draft || L10n.composer)}</span>
+      <span class="send ${state.draft && !state.replying ? 'on' : ''}">${plane()}</span>
+    </div>
+    <div class="gov-url">${esc(state.govURLID)}</div>
+  </section>`;
+}
+
+export function render() {
+  const screens = { welcome, signin, chat };
+  document.getElementById('device').innerHTML = screens[state.screen]();
+}
+
+window.GovAppPreview = { state, render };
+
+const requested = new URLSearchParams(location.search).get('screen');
+if (requested) state.screen = requested;
+
+if (state.screen === 'chat' && state.messages.length === 0) {
+  state.messages = [
+    { author: 'assistant', text: `Bonjou ${state.username}! Kijan m ka ede w jodi a?` },
+    { author: 'citizen', text: 'Mèsi Gov Ayiti, èske ou gen yon adrès?' },
+  ];
+}
+
+render();
+</script>
+</body>
+</html>
