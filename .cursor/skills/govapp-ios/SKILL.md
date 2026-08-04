@@ -87,5 +87,22 @@ xcodebuild -project GovApp/GovApp.xcodeproj -scheme GovApp \
   -destination 'platform=iOS Simulator,name=iPhone 15' build test
 ```
 
+Without a Mac, `cd GovApp/Tools/verify && swift test` builds and tests
+everything that does not need UIKit. It symlinks the real sources, so keep new
+logic files off SwiftUI imports and add them to `Sources/GovApp/` when they
+belong there. Views are not covered — never treat a green `swift test` as
+proof the app builds.
+
+Two constraints that package imposes on all code it covers:
+
+- Import `Security` and `FoundationNetworking` under `#if canImport(…)`.
+- In tests, put `@MainActor` on individual test methods, never on the
+  `XCTestCase` class, and make every isolated test `async`. Linux's XCTest
+  aborts discovery otherwise.
+
+`GovApp/Tools/preview/` renders the screens in a browser for the README images.
+It duplicates the design tokens, so changing `Theme.swift`, `AyitiGeometry`, or
+`L10n` means updating `index.html` and re-running `node capture.mjs`.
+
 To exercise GOVTalk against a real model, run ElloFive on the host first — see
 [AI.md](AI.md) for the runtime setup and the simulator's ATS requirements.

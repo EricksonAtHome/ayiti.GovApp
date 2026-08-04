@@ -23,3 +23,8 @@ __pycache__/
 
 ## Swift verification package
 GovApp/Tools/verify/.build/
+
+## Node (Tools/preview)
+node_modules/
+package-lock.json
+GovApp/Tools/preview/.frames/

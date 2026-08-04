@@ -11,7 +11,24 @@ by the [ElloFive](https://github.com/EricksonAtHome/ElloFive) LLM runtime.
 
 | Welcome | Sign in | GOVTalk AI |
 | --- | --- | --- |
-| Avatar, name, and gov URL ID for a returning citizen, with a full-width login button. | HID and PIN over the live grant countdown and session footer. | Conversation with the assistant, with a composer pinned to the bottom. |
+| <img alt="Welcome screen" src="docs/screen-welcome.png" width="240" /> | <img alt="Sign-in screen" src="docs/screen-signin.png" width="240" /> | <img alt="GOVTalk AI chat screen" src="docs/screen-chat.png" width="240" /> |
+| Avatar, name, and gov URL ID for a returning citizen, over a full-width login button. | HID and PIN above the live grant countdown and masked session footer. | Conversation with the assistant, composer pinned to the bottom. |
+
+### Walkthrough
+
+Sign in, then ask GOVTalk a question — [full quality (MP4)](docs/walkthrough.mp4).
+
+<img alt="Walkthrough: welcome, sign-in, then a GOVTalk conversation" src="docs/walkthrough.gif" width="270" />
+
+> **These images are renderings, not captures of a running build.** GovApp has
+> never been launched: an iOS app cannot be compiled or run on Linux, which is
+> where this repository's automation executes. The frames come from
+> [`GovApp/Tools/preview/`](GovApp/Tools/preview/index.html), a browser
+> reproduction driven by the same tokens as
+> [`Theme.swift`](GovApp/GovApp/DesignSystem/Theme.swift) and the same logo
+> geometry as [`AyitiMark.swift`](GovApp/GovApp/DesignSystem/AyitiMark.swift).
+> They show what the layout specifies, and they will not catch a SwiftUI
+> mistake. Regenerate them with `cd GovApp/Tools/preview && npm install && node capture.mjs`.
 
 The UI is in Haitian Creole (Kreyòl). All copy lives in
 [`GovApp/GovApp/L10n.swift`](GovApp/GovApp/L10n.swift).
@@ -34,6 +51,21 @@ xcodebuild -project GovApp/GovApp.xcodeproj -scheme GovApp \
 
 The app runs without any backend: every service has a stub, and all SwiftUI
 previews are wired to stubs so they never reach the network.
+
+### Without a Mac
+
+The logic layer builds and tests on Linux, which is how it is checked here:
+
+```bash
+cd GovApp/Tools/verify && swift test   # 27 tests
+```
+
+That package symlinks the real sources and shims the three Apple-only pieces —
+see [its README](GovApp/Tools/verify/README.md). It covers `AppConfig`,
+`HTTPClient`, `GrantToken`, `Session`, `SessionStore`, both services, the prompt
+builder, and both view models. It does **not** cover any SwiftUI view, the
+design system, or the Xcode project, so `xcodebuild` on macOS is still the
+authoritative check.
 
 ## Running GOVTalk locally
 
@@ -72,7 +104,10 @@ development, and do not widen the ATS exception.
 GovApp/
 ├── GovApp.xcodeproj/
 ├── Supporting/Info.plist       Runtime configuration
-├── Tools/generate-appicon.py   Renders the app icon from AyitiMark's geometry
+├── Tools/
+│   ├── generate-appicon.py     Renders the app icon from AyitiMark's geometry
+│   ├── preview/                Browser rendering behind the README images
+│   └── verify/                 Builds and tests the logic layer on Linux
 ├── GovApp/
 │   ├── AppConfig.swift         Endpoints and tunables
 │   ├── DesignSystem/           Brand tokens, vector ayiti.io mark, controls
