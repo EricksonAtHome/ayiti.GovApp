@@ -41,12 +41,17 @@ final class ChatErrorMappingTests: XCTestCase {
     }
 }
 
-@MainActor
+// These tests drive `@MainActor` types. The isolation is applied per test, and
+// every isolated test is `async`, because Linux's corelibs-xctest cannot cast a
+// class-isolated or synchronously-isolated XCTestCase method during discovery
+// and aborts the whole run. Behaviour under Xcode is unchanged.
 final class ChatViewModelTests: XCTestCase {
+    @MainActor
     private func makeSessions() -> SessionStore {
         SessionStore(secrets: InMemorySecretStore(), defaults: freshDefaults())
     }
 
+    @MainActor
     func testSendAppendsBothTurnsAndClearsTheDraft() async {
         let model = ChatViewModel(chat: StubChatService(canned: "Repons lan", delay: .zero))
         model.draft = "  Bonjou  "
@@ -61,6 +66,7 @@ final class ChatViewModelTests: XCTestCase {
         XCTAssertNil(model.notice)
     }
 
+    @MainActor
     func testBlankDraftIsNotSent() async {
         let model = ChatViewModel(chat: StubChatService(delay: .zero))
         model.draft = "   "
@@ -70,6 +76,7 @@ final class ChatViewModelTests: XCTestCase {
         XCTAssertTrue(model.messages.isEmpty)
     }
 
+    @MainActor
     func testUnreachableRuntimeSurfacesAnOfflineNotice() async {
         let model = ChatViewModel(chat: StubChatService(delay: .zero, reachable: false))
         model.draft = "Bonjou"
@@ -81,7 +88,8 @@ final class ChatViewModelTests: XCTestCase {
         XCTAssertEqual(model.messages.count, 1, "only the citizen's turn was recorded")
     }
 
-    func testGreetingIsSeededOnceAndOnlyWhenEmpty() {
+    @MainActor
+    func testGreetingIsSeededOnceAndOnlyWhenEmpty() async {
         let model = ChatViewModel(chat: StubChatService())
         model.greet("Jean")
         model.greet("Jean")

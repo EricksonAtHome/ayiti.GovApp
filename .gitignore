@@ -20,3 +20,6 @@ xcuserdata/
 ## Python (Tools/)
 __pycache__/
 *.pyc
+
+## Swift verification package
+GovApp/Tools/verify/.build/

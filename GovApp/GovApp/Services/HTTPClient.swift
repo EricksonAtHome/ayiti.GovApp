@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// Transport-level failures. Services translate these into `AppError`, because
 /// what a 401 means depends on which endpoint returned it.

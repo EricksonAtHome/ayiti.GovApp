@@ -12,9 +12,13 @@ func freshDefaults(function: String = #function) -> UserDefaults {
     return defaults
 }
 
-@MainActor
+// These tests drive `@MainActor` types. The isolation is applied per test, and
+// every isolated test is `async`, because Linux's corelibs-xctest cannot cast a
+// class-isolated or synchronously-isolated XCTestCase method during discovery
+// and aborts the whole run. Behaviour under Xcode is unchanged.
 final class SessionStoreTests: XCTestCase {
-    func testSavedSessionIsRestoredByANewStore() {
+    @MainActor
+    func testSavedSessionIsRestoredByANewStore() async {
         let secrets = InMemorySecretStore()
         let defaults = freshDefaults()
 
@@ -26,7 +30,8 @@ final class SessionStoreTests: XCTestCase {
         XCTAssertEqual(restored.session?.token, Session.preview.token)
     }
 
-    func testSignOutClearsTheTokenButRemembersTheCitizen() {
+    @MainActor
+    func testSignOutClearsTheTokenButRemembersTheCitizen() async {
         let secrets = InMemorySecretStore()
         let store = SessionStore(secrets: secrets, defaults: freshDefaults())
         store.save(.preview)
@@ -38,7 +43,8 @@ final class SessionStoreTests: XCTestCase {
         XCTAssertEqual(store.lastKnownProfile?.username, Session.preview.username)
     }
 
-    func testForgetClearsTheProfileToo() {
+    @MainActor
+    func testForgetClearsTheProfileToo() async {
         let store = SessionStore(secrets: InMemorySecretStore(), defaults: freshDefaults())
         store.save(.preview)
 
@@ -48,7 +54,8 @@ final class SessionStoreTests: XCTestCase {
         XCTAssertNil(store.session)
     }
 
-    func testExpiredSessionIsNotRestored() {
+    @MainActor
+    func testExpiredSessionIsNotRestored() async {
         let secrets = InMemorySecretStore()
         let defaults = freshDefaults()
         let stale = Session(
@@ -65,7 +72,8 @@ final class SessionStoreTests: XCTestCase {
         XCTAssertNil(secrets.string(for: "io.ayiti.govapp.session"), "the stale token is purged")
     }
 
-    func testDiscardIfExpiredEndsAnAgedOutSession() {
+    @MainActor
+    func testDiscardIfExpiredEndsAnAgedOutSession() async {
         let store = SessionStore(secrets: InMemorySecretStore(), defaults: freshDefaults())
         store.save(.preview)
 
@@ -75,8 +83,8 @@ final class SessionStoreTests: XCTestCase {
     }
 }
 
-@MainActor
 final class SignInViewModelTests: XCTestCase {
+    @MainActor
     func testSubmitStoresTheSessionOnSuccess() async {
         let sessions = SessionStore(secrets: InMemorySecretStore(), defaults: freshDefaults())
         let model = SignInViewModel(
@@ -93,6 +101,7 @@ final class SignInViewModelTests: XCTestCase {
         XCTAssertNil(model.notice)
     }
 
+    @MainActor
     func testRejectedCredentialsClearThePINAndExplainWhy() async {
         let sessions = SessionStore(secrets: InMemorySecretStore(), defaults: freshDefaults())
         let model = SignInViewModel(
@@ -109,7 +118,8 @@ final class SignInViewModelTests: XCTestCase {
         XCTAssertEqual(model.notice, L10n.Failure.invalidCredentials)
     }
 
-    func testIncompleteCredentialsBlockSubmission() {
+    @MainActor
+    func testIncompleteCredentialsBlockSubmission() async {
         let model = SignInViewModel(identity: StubIdentityService(), ttl: 1800)
         XCTAssertFalse(model.canSubmit)
 
@@ -120,7 +130,8 @@ final class SignInViewModelTests: XCTestCase {
         XCTAssertTrue(model.canSubmit)
     }
 
-    func testHostedFlowDoesNotRequireTypedCredentials() {
+    @MainActor
+    func testHostedFlowDoesNotRequireTypedCredentials() async {
         let model = SignInViewModel(identity: HostedIdentityService(), ttl: 1800)
 
         XCTAssertFalse(model.collectsCredentialsInApp)

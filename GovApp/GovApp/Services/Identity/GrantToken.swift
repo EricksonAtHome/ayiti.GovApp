@@ -1,5 +1,7 @@
 import Foundation
+#if canImport(Security)
 import Security
+#endif
 
 /// A short-lived, single-attempt handle that scopes one sign-in to the URL
 /// `https://id.ayiti.io/id/g/{token}`.

@@ -28,6 +28,30 @@ extension Session: CustomStringConvertible {
 }
 
 extension Session {
+    /// Parses `govapp://auth/callback?session=…&expires_in=…&username=…&gov_url_id=…`,
+    /// the redirect the hosted GovID page ends on.
+    init?(callbackURL: URL, grant: GrantToken, now: Date = .now) {
+        guard let items = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?
+            .queryItems
+        else {
+            return nil
+        }
+
+        let value = { (name: String) in
+            items.first { $0.name == name }?.value
+        }
+        guard let token = value("session"), !token.isEmpty else { return nil }
+
+        self.init(
+            token: token,
+            username: value("username") ?? "",
+            govURLID: value("gov_url_id") ?? "",
+            expiresAt: now.addingTimeInterval(
+                value("expires_in").flatMap { TimeInterval($0) } ?? grant.ttl
+            )
+        )
+    }
+
     /// Builds a session from a successful `POST /id/g/{token}` response,
     /// falling back to the grant's own TTL when the server omits `expiresIn`.
     init(response: IdentityResponse, grant: GrantToken, now: Date = .now) {
