@@ -47,15 +47,20 @@ System font (SF Pro) throughout.
 
 ## The mark
 
-`AyitiMark` draws two filled polygons plus a knockout circle on a 1024-unit
-grid, scaled to the requested size:
+`AyitiMark` draws two filled polygons on a 1024-unit grid, scaled to the
+requested size. The circle is a second subpath of the red shape filled with the
+even-odd rule, so it knocks through to transparent instead of painting white:
 
 - Blue quad: `(435,195) (555,195) (660,355) (190,805)`
-- Red polygon: `(672,410) (447,650) (560,655) (835,805)`
-- White circle: center `(718,742)`, radius `62`
+- Red polygon: `(678,408) (448,652) (562,656) (648,805) (838,805)`
+- Knockout circle: center `(716,735)`, radius `62`
+
+Those coordinates live in `AyitiGeometry` **and** in
+`Tools/generate-appicon.py`, which renders `AppIcon-1024.png` from them. Change
+both together or the icon drifts from the in-app mark.
 
 `AyitiLockup` places the mark beside the "ayiti.io" wordmark and is what screens
-should use in navigation bars.
+should use as a header.
 
 ## Screens
 
