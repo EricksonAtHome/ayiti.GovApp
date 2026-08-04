@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>GovApp</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchBackground</string>
+	</dict>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+	</dict>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>armv7</string>
+	</array>
+
+	<!-- Callback the hosted GovID page redirects to: govapp://auth/callback -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>io.ayiti.govapp.auth</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>govapp</string>
+			</array>
+		</dict>
+	</array>
+
+	<!--
+	  The ElloFive bridge runs as plaintext HTTP on the developer's machine.
+	  NSAllowsLocalNetworking permits localhost/.local only; it does not relax
+	  App Transport Security for any routable host.
+	-->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+
+	<!-- Runtime configuration; see AppConfig.swift. -->
+	<key>GOVAPP_IDENTITY_BASE_URL</key>
+	<string>https://id.ayiti.io</string>
+	<key>GOVAPP_IDENTITY_MODE</key>
+	<string>direct</string>
+	<key>GOVAPP_CALLBACK_SCHEME</key>
+	<string>govapp</string>
+	<key>GOVAPP_SESSION_TTL_SECONDS</key>
+	<string>1800</string>
+	<key>GOVAPP_AI_BASE_URL</key>
+	<string>http://127.0.0.1:3000</string>
+	<key>GOVAPP_AI_MODEL</key>
+	<string>ellofive</string>
+	<key>GOVAPP_AI_CONTEXT_TURNS</key>
+	<string>6</string>
+</dict>
+</plist>
