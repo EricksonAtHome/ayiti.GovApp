@@ -5,27 +5,54 @@ token, never the literal.
 
 ## Color
 
-| Token | Hex | Use |
+The house palette is five colors. These are exact — the CMYK column is what
+print uses, and nudging a hex here breaks that pairing.
+
+| Token | Hex | RGB | CMYK | Use |
+| --- | --- | --- | --- | --- |
+| `Brand.blue` | `#1E56C8` | 30, 86, 200 | 85, 60, 0, 0 | Logo left stroke, primary actions |
+| `Brand.red` | `#E63946` | 230, 57, 70 | 0, 90, 70, 0 | Logo right stroke, errors |
+| `Brand.ink` | `#0D1B2A` | 13, 27, 42 | 100, 85, 45, 70 | Headings, body text, dark surfaces |
+| `Brand.surface` | `#F3F5F7` | 243, 245, 247 | 4, 2, 1, 0 | Cards, bubbles, avatars |
+| `Brand.inkMuted` | `#6B7280` | 107, 114, 128 | 60, 47, 35, 1 | Secondary text and captions |
+
+Everything else is an alias or a derivation, never a sixth color:
+
+| Token | Value | Use |
 | --- | --- | --- |
-| `Brand.blue` | `#1450C8` | Logo left stroke, Repiblik Ayiti wordmark |
-| `Brand.red` | `#ED2338` | Logo right stroke |
-| `Brand.action` | `#4C8DFF` | Primary buttons, session-ID value, links |
-| `Brand.ink` | `#111114` | Headings and body text |
-| `Brand.inkMuted` | `#6B7076` | Footer labels, secondary captions |
-| `Brand.placeholder` | `#9AA0A6` | Field placeholders, input-bar hint |
-| `Brand.line` | `#E3E5E8` | Text-field borders |
-| `Brand.surface` | `#F2F3F5` | Chat composer, avatar circles |
+| `Brand.action` | `= blue` | Says "interactive" at the call site |
 | `Brand.background` | `#FFFFFF` | Sign-in and chat backgrounds |
-| `Brand.onPhoto` | `#FFFFFF` | Anything sitting on an onboarding photo |
-| `Brand.photoScrim` | gradient | Darkens a photo under the headline |
+| `Brand.onPhoto` | `#FFFFFF` | Anything on an onboarding photo |
+| `Brand.line` | `inkMuted` at 20% | Field and card borders |
+| `Brand.placeholder` | `inkMuted` at 75% | Empty-field prompts |
+| `Brand.photoScrim` | `ink` gradient | Darkens a photo under the headline |
 
 The mark's blue and red are Haitian-flag derived but brighter; do not substitute
 `#00209F` / `#D21034`.
 
-`photoScrim` runs from 32% of the height to the bottom, ramping `0 → 0.30 →
-0.80` black. It starts that high deliberately: the longest headline wraps to
-four lines, and a scrim that begins at the midpoint leaves the top line sitting
-on bare photo.
+`photoScrim` runs from 32% of the height to the bottom, ramping `ink` at
+`0 → 0.35 → 0.85`. It starts that high deliberately: the longest headline wraps
+to four lines, and a scrim that begins at the midpoint leaves the top line
+sitting on bare photo. Tinting with `ink` rather than black cools the photograph
+toward the palette's navy instead of flattening it to grey.
+
+Do not introduce a lighter "friendly" blue for buttons. The palette has one
+blue, and `#1E56C8` on white is 6.5:1 — it does not need help.
+
+### Contrast
+
+Every pairing the UI uses clears WCAG AA. Two did not, and the fix was to change
+the design rather than the palette — if you hit a third, do the same:
+
+- **`red` on white is 4.17:1**, short of the 4.5:1 body text needs. `NoticeBanner`
+  therefore sets its message in `ink` and carries the alarm through a red icon,
+  rule, and wash. Those are graphics and only need 3:1. Never set error *text*
+  in `red` on a light background.
+- **`inkMuted` on `surface` is 4.42:1.** Fine for icons and the decorative avatar
+  initial, which need 3:1, but not for text. The "ap reflechi" pill uses `ink`.
+
+`placeholder` sits at 80% of `inkMuted` because that is the lightest that still
+clears 3:1 on both `background` and `surface`.
 
 ## Type
 

@@ -5,30 +5,49 @@ import SwiftUI
 /// Views must never spell out a color, size, or radius literal — every value a
 /// screen needs lives here. See `.cursor/skills/govapp-ios/DESIGN.md`.
 enum Brand {
-    /// Logo left stroke and the Repiblik Ayiti wordmark.
-    static let blue = Color(hex: 0x1450C8)
-    /// Logo right stroke.
-    static let red = Color(hex: 0xED2338)
-    /// Primary buttons, links, and the session-ID value.
-    static let action = Color(hex: 0x4C8DFF)
+    // The five colors below are the ayiti.io house palette, exactly as
+    // specified. Do not nudge them — the CMYK equivalents in DESIGN.md are what
+    // print uses, and drift here breaks that pairing.
 
-    static let ink = Color(hex: 0x111114)
-    static let inkMuted = Color(hex: 0x6B7076)
-    static let placeholder = Color(hex: 0x9AA0A6)
-    static let line = Color(hex: 0xE3E5E8)
-    static let surface = Color(hex: 0xF2F3F5)
+    /// Logo left stroke, primary actions. `#1E56C8`
+    static let blue = Color(hex: 0x1E56C8)
+    /// Logo right stroke, errors. `#E63946`
+    static let red = Color(hex: 0xE63946)
+    /// Headings, body text, dark surfaces. `#0D1B2A`
+    static let ink = Color(hex: 0x0D1B2A)
+    /// Cards, bubbles, avatars. `#F3F5F7`
+    static let surface = Color(hex: 0xF3F5F7)
+    /// Secondary text and captions. `#6B7280`
+    static let inkMuted = Color(hex: 0x6B7280)
+
+    /// Interactive blue. An alias, not a sixth color: the palette has one blue,
+    /// and this name says what a call site means by it.
+    static let action = blue
+
     static let background = Color.white
-
     /// Text and controls sitting on a photograph.
     static let onPhoto = Color.white
+
+    // The palette specifies no hairline or placeholder color, so both are
+    // derived from `inkMuted` rather than invented.
+
+    /// Field and card borders.
+    static let line = inkMuted.opacity(0.20)
+    /// Empty-field prompts — lighter than secondary text so it does not read as
+    /// content the citizen already typed. 80% is the lightest that still clears
+    /// 3:1 on both `background` and `surface`.
+    static let placeholder = inkMuted.opacity(0.80)
     /// Darkens the lower part of an onboarding photo so a headline stays legible
     /// whatever the image behind it. It starts high enough to cover the
     /// four-line headline on the last slide, not just a one-liner.
+    ///
+    /// Tinted with `ink` rather than pure black so the photographs cool toward
+    /// the palette's navy instead of going flat grey.
     static let photoScrim = LinearGradient(
         stops: [
-            .init(color: .black.opacity(0), location: 0),
-            .init(color: .black.opacity(0.30), location: 0.45),
-            .init(color: .black.opacity(0.80), location: 1),
+            .init(color: ink.opacity(0), location: 0),
+            .init(color: ink.opacity(0.35), location: 0.45),
+            .init(color: ink.opacity(0.85), location: 1),
         ],
         startPoint: UnitPoint(x: 0.5, y: 0.32),
         endPoint: .bottom

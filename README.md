@@ -49,6 +49,25 @@ Swipe through onboarding, sign in, then ask GOVTalk a question —
 The UI is in Haitian Creole (Kreyòl). All copy lives in
 [`GovApp/GovApp/L10n.swift`](GovApp/GovApp/L10n.swift).
 
+### Palette
+
+The house palette is five colors, defined once in
+[`Theme.swift`](GovApp/GovApp/DesignSystem/Theme.swift). These are exact — the
+CMYK values are what print uses, so a nudge here breaks that pairing.
+
+| | Token | Hex | RGB | CMYK |
+| --- | --- | --- | --- | --- |
+| ![#1E56C8](https://placehold.co/14/1E56C8/1E56C8.png) | `blue` | `#1E56C8` | 30, 86, 200 | 85, 60, 0, 0 |
+| ![#E63946](https://placehold.co/14/E63946/E63946.png) | `red` | `#E63946` | 230, 57, 70 | 0, 90, 70, 0 |
+| ![#0D1B2A](https://placehold.co/14/0D1B2A/0D1B2A.png) | `ink` | `#0D1B2A` | 13, 27, 42 | 100, 85, 45, 70 |
+| ![#F3F5F7](https://placehold.co/14/F3F5F7/F3F5F7.png) | `surface` | `#F3F5F7` | 243, 245, 247 | 4, 2, 1, 0 |
+| ![#6B7280](https://placehold.co/14/6B7280/6B7280.png) | `inkMuted` | `#6B7280` | 107, 114, 128 | 60, 47, 35, 1 |
+
+Borders and placeholders are derived from `inkMuted`; nothing else is a sixth
+color. Every pairing the UI actually uses clears WCAG AA — see
+[DESIGN.md](.cursor/skills/govapp-ios/DESIGN.md) for the two cases that forced a
+design change.
+
 ## Requirements
 
 - Xcode 16 or newer (the project uses synchronized file groups, `objectVersion 77`)

@@ -15,15 +15,17 @@
 -->
 <style>
   :root {
-    --blue: #1450C8;
-    --red: #ED2338;
-    --action: #4C8DFF;
-    --ink: #111114;
-    --ink-muted: #6B7076;
-    --placeholder: #9AA0A6;
-    --line: #E3E5E8;
-    --surface: #F2F3F5;
+    /* ayiti.io house palette — must match Brand in Theme.swift. */
+    --blue: #1E56C8;
+    --red: #E63946;
+    --ink: #0D1B2A;
+    --surface: #F3F5F7;
+    --ink-muted: #6B7280;
+    --action: var(--blue);
     --background: #FFFFFF;
+    /* Derived: the palette specifies no hairline or placeholder colour. */
+    --line: rgba(107, 114, 128, .20);
+    --placeholder: rgba(107, 114, 128, .80);
     --on-photo: #FFFFFF;
 
     --gutter: 24px;
@@ -147,15 +149,15 @@
     background-size: cover;
     background-position: center;
   }
-  /* Mirrors Brand.photoScrim: y .32 -> bottom, stops 0 / .30 @45% / .80 */
+  /* Mirrors Brand.photoScrim: ink-tinted, y .32 -> bottom, 0 / .35 / .85 */
   .scrim {
     position: absolute;
     inset: 0;
     background: linear-gradient(
       to bottom,
-      rgba(0, 0, 0, 0) 32%,
-      rgba(0, 0, 0, .30) 62.6%,
-      rgba(0, 0, 0, .80) 100%
+      rgba(13, 27, 42, 0) 32%,
+      rgba(13, 27, 42, .35) 62.6%,
+      rgba(13, 27, 42, .85) 100%
     );
   }
   .onboarding .content {
@@ -349,7 +351,9 @@
     background: var(--surface);
     font-size: 15px;
     font-weight: 500;
-    color: var(--ink-muted);
+    /* ink, not ink-muted: 15pt medium is not large text and ink-muted on
+       surface is 4.42:1, just short of 4.5:1. */
+    color: var(--ink);
     align-self: flex-start;
   }
 
@@ -392,8 +396,8 @@
 
 <template id="mark">
   <svg viewBox="190 195 648 610" xmlns="http://www.w3.org/2000/svg">
-    <polygon points="435,195 555,195 660,355 190,805" fill="#1450C8"/>
-    <path fill-rule="evenodd" fill="#ED2338"
+    <polygon points="435,195 555,195 660,355 190,805" fill="#1E56C8"/>
+    <path fill-rule="evenodd" fill="#E63946"
       d="M678,408 L448,652 L562,656 L648,805 L838,805 Z
          M654,735 a62,62 0 1,0 124,0 a62,62 0 1,0 -124,0 Z"/>
   </svg>

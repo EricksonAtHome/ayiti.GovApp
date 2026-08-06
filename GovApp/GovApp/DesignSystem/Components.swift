@@ -168,22 +168,39 @@ struct FooterRow: View {
     }
 }
 
-/// Inline, dismissable error banner. Nothing in the app shows a raw system
-/// error string to a citizen.
+/// Inline error banner. Nothing in the app shows a raw system error string to a
+/// citizen.
+///
+/// The message is `ink`, not `red`: `#E63946` on white is 4.17:1, short of the
+/// 4.5:1 body text needs. Red carries the signal through the icon, the rule, and
+/// the wash — all graphics, which only need 3:1.
 struct NoticeBanner: View {
     let message: String
 
     var body: some View {
-        Text(message)
-            .font(Brand.Font.caption)
-            .foregroundStyle(Brand.red)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(12)
-            .background(
-                RoundedRectangle(cornerRadius: Brand.Metric.radius, style: .continuous)
-                    .fill(Brand.red.opacity(0.08))
-            )
-            .accessibilityAddTraits(.isStaticText)
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(Brand.red)
+            Text(message)
+                .font(Brand.Font.caption)
+                .foregroundStyle(Brand.ink)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: Brand.Metric.radius, style: .continuous)
+                .fill(Brand.red.opacity(0.08))
+        )
+        .overlay(alignment: .leading) {
+            Rectangle()
+                .fill(Brand.red)
+                .frame(width: 3)
+                .clipShape(
+                    RoundedRectangle(cornerRadius: Brand.Metric.radius, style: .continuous)
+                )
+        }
+        .accessibilityElement(children: .combine)
     }
 }
 

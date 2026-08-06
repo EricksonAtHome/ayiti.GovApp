@@ -15,8 +15,8 @@ from PIL import Image, ImageDraw
 GRID = 1024
 SUPERSAMPLE = 4
 
-BLUE = (20, 80, 200, 255)
-RED = (237, 35, 56, 255)
+BLUE = (30, 86, 200, 255)      # #1E56C8
+RED = (230, 57, 70, 255)       # #E63946
 WHITE = (255, 255, 255, 255)
 
 BLUE_QUAD = [(435, 195), (555, 195), (660, 355), (190, 805)]

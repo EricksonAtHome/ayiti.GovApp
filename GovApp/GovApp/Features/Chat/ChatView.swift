@@ -289,9 +289,11 @@ private struct GeneratingPill: View {
     var body: some View {
         HStack(spacing: 8) {
             AyitiMark(height: 14)
+            // `ink`, not `inkMuted`: 15pt medium is not "large text", and
+            // inkMuted on surface is 4.42:1 — just short of 4.5:1.
             Text(L10n.Chat.thinking)
                 .font(Brand.Font.chip)
-                .foregroundStyle(Brand.inkMuted)
+                .foregroundStyle(Brand.ink)
         }
         .padding(.horizontal, 14)
         .frame(height: Brand.Metric.chipHeight)
