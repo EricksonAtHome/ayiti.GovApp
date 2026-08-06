@@ -68,7 +68,19 @@ const preloadPhotos = (page) =>
       ),
   );
 
-const shoot = async (page, path) => (await page.$('.device')).screenshot({ path });
+/**
+ * Photographs go out as JPEG and flat UI as PNG. The onboarding slides are
+ * ~1.5 MB each as PNG and under 200 KB as JPEG, with no visible difference —
+ * that is most of the repository's weight for nothing.
+ */
+const shoot = async (page, name, selector = '.device') => {
+  const jpeg = name.endsWith('.jpg');
+  await (await page.$(selector)).screenshot({
+    path: resolve(docs, name),
+    ...(jpeg ? { type: 'jpeg', quality: 88 } : {}),
+  });
+  console.log(`wrote docs/${name}`);
+};
 
 async function screenshots(page) {
   await page.goto(`${page_url}?screen=onboarding`, { waitUntil: 'load' });
@@ -76,22 +88,27 @@ async function screenshots(page) {
 
   for (const slide of [0, 1, 2]) {
     await set(page, { screen: 'onboarding', slide, showProfileOnLastSlide: false });
-    await shoot(page, resolve(docs, `screen-onboarding-${slide + 1}.png`));
-    console.log(`wrote docs/screen-onboarding-${slide + 1}.png`);
+    await shoot(page, `screen-onboarding-${slide + 1}.jpg`);
   }
 
   // Sign-in is captured mid-entry so the masked PIN and enabled button show.
   await set(page, { screen: 'signin', hid: HID, pin: PIN });
-  await shoot(page, resolve(docs, 'screen-signin.png'));
-  console.log('wrote docs/screen-signin.png');
+  await shoot(page, 'screen-signin.png');
 
   await set(page, { screen: 'chat', username: CITIZEN, govURLID: GOV_URL, messages: [] });
-  await shoot(page, resolve(docs, 'screen-chat-empty.png'));
-  console.log('wrote docs/screen-chat-empty.png');
+  await shoot(page, 'screen-chat-empty.png');
 
   await set(page, { messages: [ASKED, ANSWERED] });
-  await shoot(page, resolve(docs, 'screen-chat.png'));
-  console.log('wrote docs/screen-chat.png');
+  await shoot(page, 'screen-chat.png');
+
+  // The palette sheet, rendered from the same CSS variables as the screens.
+  // It is a document, not a phone screen, so it needs room to lay out.
+  await page.setViewport({ width: 900, height: 900, deviceScaleFactor: 2 });
+  await set(page, { screen: 'palette' });
+  await shoot(page, 'palette.png', '.palette');
+
+  await page.setViewport(DEVICE);
+  await set(page, { screen: 'chat' });
 }
 
 /**

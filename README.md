@@ -13,7 +13,7 @@ Onboarding is three full-bleed photographs of Haiti that snap from page to page:
 
 | | | |
 | --- | --- | --- |
-| <img alt="Poze yo kesyon" src="docs/screen-onboarding-1.png" width="240" /> | <img alt="Pale ak gouvènman Ayiti a" src="docs/screen-onboarding-2.png" width="240" /> | <img alt="Mande tout enfòmasyon oswa dokiman ou bezwen" src="docs/screen-onboarding-3.png" width="240" /> |
+| <img alt="Poze yo kesyon" src="docs/screen-onboarding-1.jpg" width="240" /> | <img alt="Pale ak gouvènman Ayiti a" src="docs/screen-onboarding-2.jpg" width="240" /> | <img alt="Mande tout enfòmasyon oswa dokiman ou bezwen" src="docs/screen-onboarding-3.jpg" width="240" /> |
 | **Poze yo kesyon** | **Pale ak gouvènman Ayiti a** | **Mande tout enfòmasyon oswa dokiman ou bezwen** |
 
 Then sign-in and the assistant:
@@ -39,7 +39,8 @@ Swipe through onboarding, sign in, then ask GOVTalk a question —
 > geometry as [`AyitiMark.swift`](GovApp/GovApp/DesignSystem/AyitiMark.swift),
 > and the onboarding photographs loaded straight out of the asset catalog. They
 > show what the layout specifies, and they will not catch a SwiftUI mistake.
-> Regenerate them with `cd GovApp/Tools/preview && npm install && node capture.mjs`.
+> Regenerate everything on this page — screenshots, palette sheet, video — with
+> `cd GovApp/Tools/preview && npm install && node capture.mjs`.
 >
 > **The three onboarding photographs are AI-generated placeholders.** Replace
 > them with licensed photography before release — drop new files into
@@ -51,22 +52,19 @@ The UI is in Haitian Creole (Kreyòl). All copy lives in
 
 ### Palette
 
-The house palette is five colors, defined once in
+Five colors, defined once in
 [`Theme.swift`](GovApp/GovApp/DesignSystem/Theme.swift). These are exact — the
 CMYK values are what print uses, so a nudge here breaks that pairing.
 
-| | Token | Hex | RGB | CMYK |
-| --- | --- | --- | --- | --- |
-| ![#1E56C8](https://placehold.co/14/1E56C8/1E56C8.png) | `blue` | `#1E56C8` | 30, 86, 200 | 85, 60, 0, 0 |
-| ![#E63946](https://placehold.co/14/E63946/E63946.png) | `red` | `#E63946` | 230, 57, 70 | 0, 90, 70, 0 |
-| ![#0D1B2A](https://placehold.co/14/0D1B2A/0D1B2A.png) | `ink` | `#0D1B2A` | 13, 27, 42 | 100, 85, 45, 70 |
-| ![#F3F5F7](https://placehold.co/14/F3F5F7/F3F5F7.png) | `surface` | `#F3F5F7` | 243, 245, 247 | 4, 2, 1, 0 |
-| ![#6B7280](https://placehold.co/14/6B7280/6B7280.png) | `inkMuted` | `#6B7280` | 107, 114, 128 | 60, 47, 35, 1 |
+<img alt="ayiti.io palette: #1E56C8, #E63946, #0D1B2A, #F3F5F7, #6B7280" src="docs/palette.png" width="560" />
 
 Borders and placeholders are derived from `inkMuted`; nothing else is a sixth
-color. Every pairing the UI actually uses clears WCAG AA — see
-[DESIGN.md](.cursor/skills/govapp-ios/DESIGN.md) for the two cases that forced a
-design change.
+color. Every pairing the UI uses clears WCAG AA — see
+[DESIGN.md](.cursor/skills/govapp-ios/DESIGN.md) for the two that forced a design
+change rather than a palette change.
+
+The sheet above is generated from the same stylesheet as the screenshots, so it
+cannot disagree with what the app renders.
 
 ## Requirements
 
