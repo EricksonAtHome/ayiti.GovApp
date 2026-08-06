@@ -9,26 +9,42 @@ by the [ElloFive](https://github.com/EricksonAtHome/ElloFive) LLM runtime.
 
 ## Screens
 
-| Welcome | Sign in | GOVTalk AI |
+Onboarding is three full-bleed photographs of Haiti that snap from page to page:
+
+| | | |
 | --- | --- | --- |
-| <img alt="Welcome screen" src="docs/screen-welcome.png" width="240" /> | <img alt="Sign-in screen" src="docs/screen-signin.png" width="240" /> | <img alt="GOVTalk AI chat screen" src="docs/screen-chat.png" width="240" /> |
-| Avatar, name, and gov URL ID for a returning citizen, over a full-width login button. | HID and PIN above the live grant countdown and masked session footer. | Conversation with the assistant, composer pinned to the bottom. |
+| <img alt="Poze yo kesyon" src="docs/screen-onboarding-1.png" width="240" /> | <img alt="Pale ak gouvènman Ayiti a" src="docs/screen-onboarding-2.png" width="240" /> | <img alt="Mande tout enfòmasyon oswa dokiman ou bezwen" src="docs/screen-onboarding-3.png" width="240" /> |
+| **Poze yo kesyon** | **Pale ak gouvènman Ayiti a** | **Mande tout enfòmasyon oswa dokiman ou bezwen** |
+
+Then sign-in and the assistant:
+
+| Sign in | GOVTalk AI |
+| --- | --- |
+| <img alt="Sign-in screen" src="docs/screen-signin.png" width="240" /> | <img alt="GOVTalk AI chat screen" src="docs/screen-chat.png" width="240" /> |
+| HID and PIN above the live grant countdown and masked session footer. | Conversation with the assistant, composer pinned to the bottom. |
 
 ### Walkthrough
 
-Sign in, then ask GOVTalk a question — [full quality (MP4)](docs/walkthrough.mp4).
+Swipe through onboarding, sign in, then ask GOVTalk a question —
+[full quality (MP4)](docs/walkthrough.mp4).
 
-<img alt="Walkthrough: welcome, sign-in, then a GOVTalk conversation" src="docs/walkthrough.gif" width="270" />
+<img alt="Walkthrough: onboarding, sign-in, then a GOVTalk conversation" src="docs/walkthrough.gif" width="270" />
 
 > **These images are renderings, not captures of a running build.** GovApp has
 > never been launched: an iOS app cannot be compiled or run on Linux, which is
 > where this repository's automation executes. The frames come from
 > [`GovApp/Tools/preview/`](GovApp/Tools/preview/index.html), a browser
 > reproduction driven by the same tokens as
-> [`Theme.swift`](GovApp/GovApp/DesignSystem/Theme.swift) and the same logo
-> geometry as [`AyitiMark.swift`](GovApp/GovApp/DesignSystem/AyitiMark.swift).
-> They show what the layout specifies, and they will not catch a SwiftUI
-> mistake. Regenerate them with `cd GovApp/Tools/preview && npm install && node capture.mjs`.
+> [`Theme.swift`](GovApp/GovApp/DesignSystem/Theme.swift), the same logo
+> geometry as [`AyitiMark.swift`](GovApp/GovApp/DesignSystem/AyitiMark.swift),
+> and the onboarding photographs loaded straight out of the asset catalog. They
+> show what the layout specifies, and they will not catch a SwiftUI mistake.
+> Regenerate them with `cd GovApp/Tools/preview && npm install && node capture.mjs`.
+>
+> **The three onboarding photographs are AI-generated placeholders.** Replace
+> them with licensed photography before release — drop new files into
+> `GovApp/GovApp/Assets.xcassets/Onboarding/`, keeping the names and the 393:852
+> crop.
 
 The UI is in Haitian Creole (Kreyòl). All copy lives in
 [`GovApp/GovApp/L10n.swift`](GovApp/GovApp/L10n.swift).
@@ -111,7 +127,7 @@ GovApp/
 ├── GovApp/
 │   ├── AppConfig.swift         Endpoints and tunables
 │   ├── DesignSystem/           Brand tokens, vector ayiti.io mark, controls
-│   ├── Features/               Welcome, Auth, Chat
+│   ├── Features/               Onboarding, Auth, Chat
 │   └── Services/               Identity, session, keychain, ElloFive client
 └── GovAppTests/
 ```

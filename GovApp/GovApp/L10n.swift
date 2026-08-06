@@ -11,9 +11,20 @@ enum L10n {
         static let ayiti = "Ayiti"
     }
 
-    enum Welcome {
-        static let signIn = "login"
+    enum Onboarding {
+        static let askQuestions = "Poze yo kesyon"
+        // Non-breaking space keeps the one-letter "a" from being orphaned on a
+        // line of its own when the headline wraps.
+        static let talkToGovernment = "Pale ak gouvènman Ayiti\u{00A0}a"
+        static let requestDocuments = "Mande tout enfòmasyon oswa dokiman ou bezwen"
+
+        static let advance = "Kontinye"
+        static let slideHint = "Glise"
         static let avatar = "Foto pwofil"
+
+        static func page(_ index: Int, of total: Int) -> String {
+            "Paj \(index) sou \(total)"
+        }
     }
 
     enum SignIn {

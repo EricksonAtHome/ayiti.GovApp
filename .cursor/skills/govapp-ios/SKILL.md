@@ -19,7 +19,7 @@ GovApp/
 │   ├── GovAppApp.swift        @main entry + root routing
 │   ├── AppConfig.swift        All endpoints/flags, read from Info.plist
 │   ├── DesignSystem/          Brand tokens, ayiti.io logo, shared controls
-│   ├── Features/Welcome/      Screen 3 — signed-out landing
+│   ├── Features/Onboarding/   Screen 3 — signed-out photo carousel
 │   ├── Features/Auth/         Screen 1 — HID + PIN sign-in
 │   ├── Features/Chat/         Screen 2 — GOVTalk AI conversation
 │   └── Services/              Identity, session, keychain, ElloFive client
@@ -41,6 +41,9 @@ picked up automatically. Do not hand-edit `project.pbxproj` to add a source file
    never invent a color, radius, or spacing value.
 5. **The logo is vector code, not a bitmap.** Use `AyitiMark` / `AyitiLockup`
    from the design system so it stays crisp at every size.
+6. **The onboarding photographs are AI-generated placeholders.** They must be
+   replaced with licensed photography before release. Keep the asset names and
+   the 393:852 crop so nothing else has to change.
 
 ## Quick reference
 

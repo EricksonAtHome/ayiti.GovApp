@@ -14,7 +14,7 @@ struct GovAppApp: App {
 }
 
 /// Routes between the three screens. A valid session means chat; otherwise the
-/// citizen is on the welcome screen until they choose to sign in.
+/// citizen is in onboarding until they choose to sign in.
 struct RootView: View {
     @Environment(SessionStore.self) private var sessions
     @Environment(\.scenePhase) private var scenePhase
@@ -29,7 +29,7 @@ struct RootView: View {
             } else if isSigningIn {
                 SignInView(onCancel: { isSigningIn = false })
             } else {
-                WelcomeView(profile: sessions.lastKnownProfile) {
+                OnboardingView(profile: sessions.lastKnownProfile) {
                     isSigningIn = true
                 }
             }

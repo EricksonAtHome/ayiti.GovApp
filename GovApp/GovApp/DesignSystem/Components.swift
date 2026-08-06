@@ -37,32 +37,19 @@ struct BrandTextField: View {
     }
 }
 
-/// Primary action button.
-///
-/// `.hugging` sizes to its label (sign-in), `.wide` fills the width (welcome).
+/// Primary action button. Sizes to its label rather than filling the width.
 struct BrandButton: View {
-    enum Width {
-        case hugging
-        case wide
-    }
-
     let title: String
-    var width: Width = .hugging
     var isEnabled = true
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(width == .wide ? Brand.Font.action : Brand.Font.buttonLabel)
+                .font(Brand.Font.buttonLabel)
                 .foregroundStyle(.white)
-                .padding(.horizontal, width == .wide ? 0 : 40)
-                .frame(
-                    maxWidth: width == .wide ? .infinity : nil,
-                    minHeight: width == .wide
-                        ? Brand.Metric.wideButtonHeight
-                        : Brand.Metric.fieldHeight
-                )
+                .padding(.horizontal, 40)
+                .frame(minHeight: Brand.Metric.fieldHeight)
                 .background(
                     RoundedRectangle(cornerRadius: Brand.Metric.radius, style: .continuous)
                         .fill(Brand.action)
@@ -137,7 +124,6 @@ struct NoticeBanner: View {
         BrandTextField(placeholder: L10n.SignIn.hid, text: .constant(""))
         BrandTextField(placeholder: L10n.SignIn.pin, text: .constant(""), isSecure: true)
         BrandButton(title: L10n.SignIn.submit) {}
-        BrandButton(title: L10n.Welcome.signIn, width: .wide) {}
         NoticeBanner(message: L10n.Failure.invalidCredentials)
         FooterRow(label: L10n.SignIn.sessionID, value: "***764d77", valueColor: Brand.action)
     }

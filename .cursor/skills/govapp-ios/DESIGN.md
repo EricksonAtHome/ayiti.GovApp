@@ -15,10 +15,17 @@ token, never the literal.
 | `Brand.placeholder` | `#9AA0A6` | Field placeholders, input-bar hint |
 | `Brand.line` | `#E3E5E8` | Text-field borders |
 | `Brand.surface` | `#F2F3F5` | Chat composer, avatar circles |
-| `Brand.background` | `#FFFFFF` | All screen backgrounds |
+| `Brand.background` | `#FFFFFF` | Sign-in and chat backgrounds |
+| `Brand.onPhoto` | `#FFFFFF` | Anything sitting on an onboarding photo |
+| `Brand.photoScrim` | gradient | Darkens a photo under the headline |
 
 The mark's blue and red are Haitian-flag derived but brighter; do not substitute
 `#00209F` / `#D21034`.
+
+`photoScrim` runs from 32% of the height to the bottom, ramping `0 → 0.30 →
+0.80` black. It starts that high deliberately: the longest headline wraps to
+four lines, and a scrim that begins at the midpoint leaves the top line sitting
+on bare photo.
 
 ## Type
 
@@ -26,11 +33,11 @@ System font (SF Pro) throughout.
 
 | Token | Size / weight | Use |
 | --- | --- | --- |
-| `Brand.Font.display` | 40 / bold | Username on the welcome screen |
+| `Brand.Font.headline` | 36 / bold | Onboarding slide headline |
 | `Brand.Font.title` | 28 / bold | "Bonjou, konekte isit la" |
 | `Brand.Font.wordmark` | 30 / heavy, tracking −1 | "ayiti.io" lockup |
-| `Brand.Font.body` | 17 / regular | Fields, buttons, chat messages |
-| `Brand.Font.action` | 20 / regular | Welcome-screen login button |
+| `Brand.Font.body` | 17 / regular | Fields, chat messages, swipe hint |
+| `Brand.Font.buttonLabel` | 17 / semibold | Button labels |
 | `Brand.Font.caption` | 13 / regular | Footer rows |
 | `Brand.Font.micro` | 10 / semibold | "GOVTalk AI" and `{gov.url.id}` |
 
@@ -40,10 +47,14 @@ System font (SF Pro) throughout.
 | --- | --- |
 | `Brand.Metric.gutter` | 24 (screen horizontal inset) |
 | `Brand.Metric.fieldHeight` | 56 |
+| `Brand.Metric.composerHeight` | 64 |
 | `Brand.Metric.radius` | 12 (fields, buttons) |
 | `Brand.Metric.composerRadius` | 16 |
 | `Brand.Metric.stack` | 12 (gap between stacked fields) |
 | `Brand.Metric.section` | 28 (gap between groups) |
+| `Brand.Metric.progressTrack` | 3 (onboarding page indicator) |
+| `Brand.Metric.barHeight` | 76 (onboarding action bar) |
+| `Brand.Metric.pillHeight` | 52 ("Kontinye" pill) |
 
 ## The mark
 
@@ -103,18 +114,49 @@ Composer pinned to the bottom: a `Brand.surface` rounded rect at
 paper-plane send button trailing. Send is disabled while the input is empty or a
 reply is in flight. Below it, `{gov.url.id}` centered in `micro`.
 
-### 3. Welcome — `Features/Welcome/WelcomeView.swift`
+### 3. Onboarding — `Features/Onboarding/OnboardingView.swift`
 
-A 245pt `Brand.surface` circle centered in the upper third, `{username}` in
-`display` beneath it, then `{gov.url.id}` in `caption`/muted. `Spacer()`, then a
-full-width 64pt `BrandButton` labelled "login" pinned above the safe area.
+The signed-out landing screen, and the only one that is not white. Three
+full-bleed photographs of Haiti in a `TabView` with `.page(indexDisplayMode:
+.never)`, so pages snap. Slides are declared in `OnboardingSlide.all`:
 
-This is the signed-out landing screen; its button routes to sign-in.
+| Photo asset | Headline |
+| --- | --- |
+| `OnboardingStreet` | Poze yo kesyon |
+| `OnboardingTown` | Pale ak gouvènman Ayiti a |
+| `OnboardingAvenue` | Mande tout enfòmasyon oswa dokiman ou bezwen |
+
+Each page is the photo `.scaledToFill()` and clipped, then `Brand.photoScrim`,
+then the headline in `Brand.Font.headline` / `Brand.onPhoto`, leading-aligned,
+with `barHeight + 64` of bottom padding so it clears the action bar.
+
+Two fixed overlays sit above the pager and do not swipe:
+
+- **Top** — a `progressTrack`-tall segmented indicator, one capsule per slide at
+  full white for the current page and 35% for the rest, then `AyitiLockup` with
+  a `Brand.onPhoto` wordmark.
+- **Bottom** — a `barHeight` capsule of `.ultraThinMaterial` with a 25% white
+  border, holding a `Brand.ink` pill labelled "Kontinye". Trailing it: "Glise →"
+  on the first two slides; on the last, the returning citizen's name and avatar
+  if one is known, so "Kontinye" reads as *continue as me*. With neither, the
+  pill fills the bar instead of leaving a gap.
+
+"Kontinye" advances, and finishes onboarding on the last slide.
+
+The mark keeps its brand colors on photos — only the wordmark takes a tint.
+
+Photographs live in `Assets.xcassets/Onboarding/`, cropped to the 393:852 phone
+ratio so no shipped pixel is cropped at runtime. They are **placeholders**: swap
+in licensed photography before release.
 
 ## Layout invariants
 
-- Every screen is white, edge-to-edge, with `gutter` horizontal insets.
+- Sign-in and chat are white, edge-to-edge, with `gutter` horizontal insets.
+  Onboarding is full-bleed photography and ignores the safe area; only its
+  overlays respect it.
 - Content is top-aligned; a single `Spacer()` separates content from the footer
-  or pinned button. Never center a whole screen vertically.
-- Buttons and fields keep 56–64pt height so they stay comfortable one-handed.
+  or pinned bar. Never center a whole screen vertically.
+- Buttons and fields keep 52–76pt height so they stay comfortable one-handed.
 - Placeholder text uses `Brand.placeholder`; never rely on SwiftUI's default.
+- Text over a photograph always carries a scrim *and* a shadow. One is not
+  enough when the image behind it is unknown.

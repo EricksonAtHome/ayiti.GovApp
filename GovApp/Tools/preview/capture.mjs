@@ -7,8 +7,8 @@
  *
  *   npm install && node capture.mjs
  *
- * Outputs to ../../../docs/: three PNGs plus walkthrough.mp4 (built with
- * ffmpeg from the frame sequence).
+ * Outputs to ../../../docs/: five PNGs plus walkthrough.mp4 and .gif, both
+ * built with ffmpeg from the frame sequence.
  */
 
 import { execFile } from 'node:child_process';
@@ -37,6 +37,8 @@ const QUESTION = 'Kilè paspò mwen an ap pare?';
 const ANSWER = 'Paspò ou an pare depi 2 jou. Ou ka vin chèche l nan biwo '
   + 'imigrasyon Pòtoprens, lendi a vandredi, 8:00–14:00.';
 
+const GREETING = { author: 'assistant', text: `Bonjou ${CITIZEN}! Kijan m ka ede w jodi a?` };
+
 /** Applies a patch to the page's preview state and re-renders. */
 const set = (page, patch) =>
   page.evaluate((p) => {
@@ -44,21 +46,48 @@ const set = (page, patch) =>
     window.GovAppPreview.render();
   }, patch);
 
-/** Sign-in is captured mid-entry so the masked PIN and enabled button show. */
-const seeds = {
-  welcome: { username: CITIZEN, govURLID: GOV_URL },
-  signin: { hid: HID, pin: PIN },
-  chat: { username: CITIZEN, govURLID: GOV_URL },
-};
+/** Onboarding backgrounds must be in cache before a frame is captured. */
+const preloadPhotos = (page) =>
+  page.evaluate(
+    () =>
+      Promise.all(
+        window.GovAppPreview.photos.map(
+          (src) =>
+            new Promise((done) => {
+              const img = new Image();
+              img.onload = done;
+              img.onerror = done;
+              img.src = src;
+            }),
+        ),
+      ),
+  );
+
+const shoot = async (page, path) => (await page.$('.device')).screenshot({ path });
 
 async function screenshots(page) {
-  for (const [screen, seed] of Object.entries(seeds)) {
-    await page.goto(`${page_url}?screen=${screen}`, { waitUntil: 'load' });
-    await set(page, seed);
-    const element = await page.$('.device');
-    await element.screenshot({ path: resolve(docs, `screen-${screen}.png`) });
-    console.log(`wrote docs/screen-${screen}.png`);
+  await page.goto(`${page_url}?screen=onboarding`, { waitUntil: 'load' });
+  await preloadPhotos(page);
+
+  for (const slide of [0, 1, 2]) {
+    await set(page, { screen: 'onboarding', slide, showProfileOnLastSlide: false });
+    await shoot(page, resolve(docs, `screen-onboarding-${slide + 1}.png`));
+    console.log(`wrote docs/screen-onboarding-${slide + 1}.png`);
   }
+
+  // Sign-in is captured mid-entry so the masked PIN and enabled button show.
+  await set(page, { screen: 'signin', hid: HID, pin: PIN });
+  await shoot(page, resolve(docs, 'screen-signin.png'));
+  console.log('wrote docs/screen-signin.png');
+
+  await set(page, {
+    screen: 'chat',
+    username: CITIZEN,
+    govURLID: GOV_URL,
+    messages: [GREETING, { author: 'citizen', text: 'Mèsi Gov Ayiti, èske ou gen yon adrès?' }],
+  });
+  await shoot(page, resolve(docs, 'screen-chat.png'));
+  console.log('wrote docs/screen-chat.png');
 }
 
 /**
@@ -69,10 +98,23 @@ function storyboard() {
   const beats = [];
   const hold = (frames, patch = {}) => beats.push({ patch, frames });
 
-  hold(24, { screen: 'welcome', username: CITIZEN, govURLID: GOV_URL });
+  // Swipe through onboarding.
+  hold(30, {
+    screen: 'onboarding',
+    slide: 0,
+    username: CITIZEN,
+    govURLID: GOV_URL,
+    showProfileOnLastSlide: true,
+    hid: '',
+    pin: '',
+    messages: [],
+    draft: '',
+  });
+  hold(28, { slide: 1 });
+  hold(34, { slide: 2 });
 
-  // Tap "login".
-  hold(10, { screen: 'signin', hid: '', pin: '' });
+  // Tap "Kontinye".
+  hold(10, { screen: 'signin' });
   for (let i = 1; i <= HID.length; i++) hold(2, { hid: HID.slice(0, i) });
   hold(6);
   for (let i = 1; i <= PIN.length; i++) hold(3, { pin: PIN.slice(0, i) });
@@ -80,29 +122,20 @@ function storyboard() {
 
   // Tap "Konekte".
   hold(18, { working: true });
-  hold(26, {
-    screen: 'chat',
-    working: false,
-    messages: [{ author: 'assistant', text: `Bonjou ${CITIZEN}! Kijan m ka ede w jodi a?` }],
-  });
+  hold(26, { screen: 'chat', working: false, messages: [GREETING] });
 
-  // Type a question.
+  // Ask GOVTalk a question.
   for (let i = 1; i <= QUESTION.length; i++) hold(1, { draft: QUESTION.slice(0, i) });
   hold(10);
-
-  // Send it.
   hold(22, {
     draft: '',
     replying: true,
-    messages: [
-      { author: 'assistant', text: `Bonjou ${CITIZEN}! Kijan m ka ede w jodi a?` },
-      { author: 'citizen', text: QUESTION },
-    ],
+    messages: [GREETING, { author: 'citizen', text: QUESTION }],
   });
-  hold(46, {
+  hold(48, {
     replying: false,
     messages: [
-      { author: 'assistant', text: `Bonjou ${CITIZEN}! Kijan m ka ede w jodi a?` },
+      GREETING,
       { author: 'citizen', text: QUESTION },
       { author: 'assistant', text: ANSWER },
     ],
@@ -114,28 +147,25 @@ function storyboard() {
 async function walkthrough(page) {
   await rm(frames, { recursive: true, force: true });
   await mkdir(frames, { recursive: true });
-  await page.goto(`${page_url}?screen=welcome`, { waitUntil: 'load' });
+  await page.goto(`${page_url}?screen=onboarding`, { waitUntil: 'load' });
+  await preloadPhotos(page);
 
   let index = 0;
   for (const beat of storyboard()) {
     await set(page, beat.patch);
-    const element = await page.$('.device');
     for (let i = 0; i < beat.frames; i++) {
-      await element.screenshot({
-        path: resolve(frames, `${String(index++).padStart(5, '0')}.png`),
-      });
+      await shoot(page, resolve(frames, `${String(index++).padStart(5, '0')}.png`));
     }
   }
   console.log(`captured ${index} frames`);
 
-  const mp4 = resolve(docs, 'walkthrough.mp4');
   await run('ffmpeg', [
     '-y', '-framerate', String(FPS),
     '-i', resolve(frames, '%05d.png'),
     '-vf', 'scale=540:-2',
     '-c:v', 'libx264', '-pix_fmt', 'yuv420p',
     '-movflags', '+faststart', '-crf', '23',
-    mp4,
+    resolve(docs, 'walkthrough.mp4'),
   ]);
   console.log('wrote docs/walkthrough.mp4');
 
@@ -144,7 +174,7 @@ async function walkthrough(page) {
   const gifFilters = 'fps=12,scale=270:-1:flags=lanczos';
   await run('ffmpeg', [
     '-y', '-i', resolve(frames, '%05d.png'),
-    '-vf', `${gifFilters},palettegen=max_colors=64`, palette,
+    '-vf', `${gifFilters},palettegen=max_colors=128`, palette,
   ]);
   await run('ffmpeg', [
     '-y', '-framerate', String(FPS),

@@ -95,8 +95,12 @@ struct AyitiMark: View {
 }
 
 /// The mark paired with the "ayiti.io" wordmark, used as screen headers.
+///
+/// The mark keeps its brand colors everywhere; only the wordmark changes, so
+/// pass `Brand.onPhoto` when the lockup sits on a photograph.
 struct AyitiLockup: View {
     var height: CGFloat = 34
+    var wordmark: Color = Brand.ink
 
     var body: some View {
         HStack(spacing: height * 0.22) {
@@ -104,7 +108,7 @@ struct AyitiLockup: View {
             Text(verbatim: "ayiti.io")
                 .font(Brand.Font.wordmark(size: height * 0.88))
                 .tracking(-1)
-                .foregroundStyle(Brand.ink)
+                .foregroundStyle(wordmark)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(L10n.General.brand)

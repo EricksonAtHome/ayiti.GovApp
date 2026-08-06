@@ -134,7 +134,7 @@ private struct ChatContent: View {
             .accessibilityLabel(L10n.Chat.send)
         }
         .padding(.horizontal, 20)
-        .frame(minHeight: Brand.Metric.wideButtonHeight)
+        .frame(minHeight: Brand.Metric.composerHeight)
         .background(
             RoundedRectangle(cornerRadius: Brand.Metric.composerRadius, style: .continuous)
                 .fill(Brand.surface)

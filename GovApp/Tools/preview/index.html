@@ -4,13 +4,14 @@
 <meta charset="utf-8" />
 <title>GovApp — design preview</title>
 <!--
-  A browser reproduction of GovApp's three screens, used to produce the
-  images in the README. It is NOT the app: it is a rendering of the same
-  design tokens, because an iOS app cannot be built or run on Linux.
+  A browser reproduction of GovApp's screens, used to produce the images in the
+  README. It is NOT the app: it is a rendering of the same design tokens,
+  because an iOS app cannot be built or run on Linux.
 
-  Every value below is copied from GovApp/DesignSystem/Theme.swift and the
-  mark geometry from AyitiGeometry. If you change a token in Swift, change
-  it here too or the README images stop telling the truth.
+  Every value below is copied from GovApp/DesignSystem/Theme.swift and the mark
+  geometry from AyitiGeometry. The onboarding photographs are loaded straight
+  out of the asset catalog, so they cannot drift. If you change a token in
+  Swift, change it here too or the README images stop telling the truth.
 -->
 <style>
   :root {
@@ -23,14 +24,18 @@
     --line: #E3E5E8;
     --surface: #F2F3F5;
     --background: #FFFFFF;
+    --on-photo: #FFFFFF;
 
     --gutter: 24px;
     --field-height: 56px;
-    --wide-button-height: 64px;
+    --composer-height: 64px;
     --radius: 12px;
     --composer-radius: 16px;
     --stack: 12px;
     --section: 28px;
+    --progress-track: 3px;
+    --bar-height: 76px;
+    --pill-height: 52px;
 
     --safe-top: 59px;
     --safe-bottom: 34px;
@@ -77,6 +82,10 @@
     color: var(--ink);
     line-height: 1;
   }
+  .lockup.on-photo .wordmark {
+    color: var(--on-photo);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, .35);
+  }
 
   /* ---- shared controls ----------------------------------------------- */
   .field {
@@ -100,20 +109,12 @@
     justify-content: center;
     border: none;
     font-family: inherit;
-    cursor: pointer;
-  }
-  .btn.hugging {
     height: var(--field-height);
     padding: 0 40px;
     font-size: 17px;
     font-weight: 600;
     align-self: flex-start;
-  }
-  .btn.wide {
-    height: var(--wide-button-height);
-    width: 100%;
-    font-size: 20px;
-    font-weight: 400;
+    cursor: pointer;
   }
   .btn[disabled] { opacity: .45; }
 
@@ -136,7 +137,91 @@
   .footer-row .label { color: var(--ink-muted); }
   .footer-row .value { font-variant-numeric: tabular-nums; }
 
-  /* ---- screen 1: sign in ---------------------------------------------- */
+  /* ---- onboarding ----------------------------------------------------- */
+  .screen.onboarding { padding: 0; }
+  .photo {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+  }
+  /* Mirrors Brand.photoScrim: y .32 -> bottom, stops 0 / .30 @45% / .80 */
+  .scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 32%,
+      rgba(0, 0, 0, .30) 62.6%,
+      rgba(0, 0, 0, .80) 100%
+    );
+  }
+  .onboarding .content {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: calc(var(--safe-top) + var(--stack)) var(--gutter)
+             calc(var(--safe-bottom) + var(--stack));
+  }
+  .progress { display: flex; gap: 6px; }
+  .progress i {
+    flex: 1;
+    height: var(--progress-track);
+    border-radius: 2px;
+    background: rgba(255, 255, 255, .35);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .25);
+  }
+  .progress i.on { background: var(--on-photo); }
+  .onboarding .lockup { margin-top: 18px; }
+  .headline {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1.08;
+    color: var(--on-photo);
+    text-shadow: 0 4px 12px rgba(0, 0, 0, .3);
+    margin-bottom: 18px;
+  }
+  .action-bar {
+    height: var(--bar-height);
+    border-radius: calc(var(--bar-height) / 2);
+    background: rgba(255, 255, 255, .18);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, .25);
+    display: flex;
+    align-items: center;
+    gap: var(--stack);
+    padding-left: var(--stack);
+    padding-right: calc(var(--stack) * 2);
+    flex: none;
+  }
+  .action-bar.solo { padding-right: var(--stack); }
+  .action-bar.solo .pill { flex: 1; }
+  .pill {
+    height: var(--pill-height);
+    padding: 0 28px;
+    border: none;
+    border-radius: calc(var(--pill-height) / 2);
+    background: var(--ink);
+    color: var(--on-photo);
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .hint {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--on-photo);
+    font-size: 17px;
+  }
+  .hint .who { display: flex; align-items: center; gap: 8px; }
+
+  /* ---- sign in --------------------------------------------------------- */
   .signin-header {
     display: flex;
     align-items: center;
@@ -146,14 +231,6 @@
   .close { color: var(--ink-muted); font-size: 15px; font-weight: 600; }
   .title { font-size: 28px; font-weight: 700; margin-top: var(--section); line-height: 1.15; }
   .fields { margin-top: var(--section); display: flex; flex-direction: column; gap: var(--stack); }
-  .notice {
-    margin-top: var(--stack);
-    background: rgba(237, 35, 56, .08);
-    color: var(--red);
-    border-radius: var(--radius);
-    padding: 12px;
-    font-size: 13px;
-  }
   .signin-submit { margin-top: var(--section); }
   .signin-footer { display: flex; flex-direction: column; gap: 6px; padding-bottom: var(--stack); }
   .copyright { display: flex; align-items: center; gap: 6px; padding-top: 4px; font-size: 13px; color: var(--ink-muted); }
@@ -163,7 +240,7 @@
   .flag i:first-child { background: var(--blue); }
   .flag i:last-child { background: var(--red); }
 
-  /* ---- screen 2: chat -------------------------------------------------- */
+  /* ---- chat ------------------------------------------------------------ */
   .chat-header {
     display: flex;
     align-items: center;
@@ -194,7 +271,7 @@
   .row .text { font-size: 17px; line-height: 1.3; }
   .thinking { font-size: 13px; color: var(--ink-muted); }
   .composer {
-    min-height: var(--wide-button-height);
+    min-height: var(--composer-height);
     background: var(--surface);
     border-radius: var(--composer-radius);
     display: flex;
@@ -207,13 +284,6 @@
   .composer .send { color: var(--placeholder); display: flex; }
   .composer .send.on { color: var(--ink); }
   .gov-url { text-align: center; font-size: 10px; font-weight: 600; color: var(--ink-muted); padding-top: 6px; }
-
-  /* ---- screen 3: welcome ----------------------------------------------- */
-  .welcome { align-items: center; }
-  .welcome .top { height: 40px; flex: none; }
-  .welcome .name { font-size: 40px; font-weight: 700; margin-top: var(--section); }
-  .welcome .gov { font-size: 13px; color: var(--ink-muted); margin-top: 2px; }
-  .welcome .btn { margin-bottom: var(--stack); }
 </style>
 </head>
 <body>
@@ -239,6 +309,15 @@
 
 <script type="module">
 const L10n = {
+  // Onboarding — must match L10n.Onboarding in Swift.
+  slides: [
+    'Poze yo kesyon',
+    'Pale ak gouvènman Ayiti\u00A0a',
+    'Mande tout enfòmasyon oswa dokiman ou bezwen',
+  ],
+  advance: 'Kontinye',
+  slideHint: 'Glise',
+
   title: 'Bonjou, konekte isit la',
   hid: 'Idantite Ayiti (HID)',
   pin: 'Kòd sekrè (Pin)',
@@ -247,16 +326,24 @@ const L10n = {
   sessionID: 'Session ID:',
   expiresIn: 'Expires in:',
   copyright: '© 2026 ayiti.io from',
-  login: 'login',
   assistant: 'GOVTalk AI',
   composer: 'what can i help you',
   thinking: 'GOVTalk ap reflechi…',
 };
 
+// Straight out of the asset catalog so the preview cannot drift from the app.
+const PHOTOS = [
+  'OnboardingStreet',
+  'OnboardingTown',
+  'OnboardingAvenue',
+].map((n) => `../../GovApp/Assets.xcassets/Onboarding/${n}.imageset/${n}.jpg`);
+
 export const state = {
-  screen: 'welcome',
+  screen: 'onboarding',
+  slide: 0,
   username: 'Jean Baptiste',
   govURLID: 'gov.ayiti.io/jbaptiste',
+  showProfileOnLastSlide: false,
   hid: '',
   pin: '',
   working: false,
@@ -281,21 +368,41 @@ const plane = () => {
   return svg.outerHTML;
 };
 
-const lockup = () => `<div class="lockup">${mark(34)}<span class="wordmark">ayiti.io</span></div>`;
+const lockup = (onPhoto = false) =>
+  `<div class="lockup${onPhoto ? ' on-photo' : ''}">${mark(34)}<span class="wordmark">ayiti.io</span></div>`;
 const avatar = (size, initial) =>
   `<div class="avatar" style="width:${size}px;height:${size}px;font-size:${size * 0.42}px">${initial ?? ''}</div>`;
 const initial = () => (state.username ? state.username[0].toUpperCase() : '');
 const esc = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 
-function welcome() {
+function onboarding() {
+  const last = state.slide === L10n.slides.length - 1;
+  const dots = L10n.slides
+    .map((_, i) => `<i class="${i === state.slide ? 'on' : ''}"></i>`)
+    .join('');
+
+  const trailing = !last
+    ? `<span class="hint">${L10n.slideHint} <span>&#8594;</span></span>`
+    : state.showProfileOnLastSlide
+      ? `<span class="hint"><span class="who">${esc(state.username)}${avatar(36, initial())}</span></span>`
+      : '';
+  // With nothing to its right, the pill fills the bar instead of leaving a gap.
+  const solo = trailing === '' ? ' solo' : '';
+
   return `
-  <section class="screen welcome active">
-    <div class="top"></div>
-    ${avatar(245, initial())}
-    <div class="name">${esc(state.username)}</div>
-    <div class="gov">${esc(state.govURLID)}</div>
-    <div class="spacer"></div>
-    <button class="btn wide">${L10n.login}</button>
+  <section class="screen onboarding active">
+    <div class="photo" style="background-image:url('${PHOTOS[state.slide]}')"></div>
+    <div class="scrim"></div>
+    <div class="content">
+      <div class="progress">${dots}</div>
+      ${lockup(true)}
+      <div class="spacer"></div>
+      <h1 class="headline">${esc(L10n.slides[state.slide])}</h1>
+      <div class="action-bar${solo}">
+        <button class="pill">${L10n.advance}</button>
+        ${trailing}
+      </div>
+    </div>
   </section>`;
 }
 
@@ -303,14 +410,14 @@ function signin() {
   const canSubmit = state.hid.trim() && state.pin && !state.working;
   return `
   <section class="screen active">
-    <div class="signin-header">${lockup()}<span class="close">✕</span></div>
+    <div class="signin-header">${lockup()}<span class="close">&#10005;</span></div>
     <h1 class="title">${L10n.title}</h1>
     <div class="fields">
       <div class="field ${state.hid ? '' : 'empty'}">${esc(state.hid || L10n.hid)}</div>
       <div class="field ${state.pin ? '' : 'empty'}">${state.pin ? '•'.repeat(state.pin.length) : L10n.pin}</div>
     </div>
     <div class="signin-submit">
-      <button class="btn hugging" ${canSubmit ? '' : 'disabled'}>
+      <button class="btn" ${canSubmit ? '' : 'disabled'}>
         ${state.working ? L10n.working : L10n.submit}
       </button>
     </div>
@@ -362,14 +469,15 @@ function chat() {
 }
 
 export function render() {
-  const screens = { welcome, signin, chat };
+  const screens = { onboarding, signin, chat };
   document.getElementById('device').innerHTML = screens[state.screen]();
 }
 
-window.GovAppPreview = { state, render };
+window.GovAppPreview = { state, render, photos: PHOTOS };
 
-const requested = new URLSearchParams(location.search).get('screen');
-if (requested) state.screen = requested;
+const params = new URLSearchParams(location.search);
+if (params.get('screen')) state.screen = params.get('screen');
+if (params.get('slide')) state.slide = Number(params.get('slide'));
 
 if (state.screen === 'chat' && state.messages.length === 0) {
   state.messages = [
