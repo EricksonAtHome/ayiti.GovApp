@@ -7,6 +7,8 @@ by the [ElloFive](https://github.com/EricksonAtHome/ElloFive) LLM runtime.
 
 <img alt="GovApp icon" src="GovApp/GovApp/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png" width="96" />
 
+<img alt="GovApp icon" src="docs/575547.png" />
+
 ## Screens
 
 | Welcome | Sign in | GOVTalk AI |
