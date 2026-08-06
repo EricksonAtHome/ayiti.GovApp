@@ -125,7 +125,13 @@ private struct SlidePage: View {
                     Text(slide.headline)
                         .font(Brand.Font.headline)
                         .foregroundStyle(Brand.onPhoto)
-                        .shadow(color: .black.opacity(0.3), radius: 12, y: 4)
+                        // Two shadows, not one: the tight pass keeps thin
+                        // strokes readable against a bright patch, the wide one
+                        // lifts the whole block off the photo. The scrim alone
+                        // cannot be trusted once these placeholder photographs
+                        // are swapped for real ones.
+                        .shadow(color: .black.opacity(0.50), radius: 6, y: 2)
+                        .shadow(color: .black.opacity(0.35), radius: 18, y: 6)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal, Brand.Metric.gutter)
                         // Clears the floating action bar and the home indicator.
