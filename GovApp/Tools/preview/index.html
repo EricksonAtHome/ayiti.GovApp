@@ -28,11 +28,13 @@
 
     --gutter: 24px;
     --field-height: 56px;
-    --composer-height: 64px;
     --radius: 12px;
-    --composer-radius: 16px;
     --stack: 12px;
     --section: 28px;
+    --bubble-radius: 20px;
+    --card-radius: 24px;
+    --chip-height: 38px;
+    --control-button: 44px;
     --progress-track: 3px;
     --bar-height: 76px;
     --pill-height: 52px;
@@ -245,46 +247,145 @@
   .chat-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: var(--stack);
     padding-top: 8px;
-    padding-bottom: var(--section);
+    padding-bottom: var(--stack);
   }
-  .chat-header .who { display: flex; align-items: center; gap: 12px; font-size: 17px; }
+  .chat-header .grow { flex: 1; }
+  .circle-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--ink-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+  }
+
+  .empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .empty .greeting {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.15;
+    text-align: center;
+    margin-top: var(--section);
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: var(--section);
+  }
+  .chip {
+    height: var(--chip-height);
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: calc(var(--chip-height) / 2);
+    background: var(--background);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .chip .ic { color: var(--action); display: flex; }
+
   .transcript {
     flex: 1 1 auto;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     gap: var(--section);
+    padding: var(--stack) 0;
   }
-  .row { display: flex; flex-direction: column; gap: 8px; }
-  .row.assistant { padding-right: 56px; }
-  .row.citizen { padding-left: 56px; }
-  .attribution {
+  .bubble {
+    max-width: calc(100% - 44px);
+    margin-left: auto;
+    background: var(--surface);
+    border-radius: var(--bubble-radius);
+    padding: 12px 16px;
+    font-size: 17px;
+    line-height: 1.3;
+  }
+  .answer-head {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 6px;
-    font-size: 10px;
+    gap: 7px;
+    font-size: 15px;
     font-weight: 600;
   }
-  .attribution.citizen { color: var(--ink-muted); }
-  .row .text { font-size: 17px; line-height: 1.3; }
-  .thinking { font-size: 13px; color: var(--ink-muted); }
-  .composer {
-    min-height: var(--composer-height);
+  .answer-text {
+    font-size: 17px;
+    line-height: 1.35;
+    margin-top: var(--stack);
+    white-space: pre-wrap;
+  }
+  .answer-text strong { font-weight: 600; }
+  .answer-text code {
+    font-family: ui-monospace, monospace;
+    font-size: 15px;
     background: var(--surface);
-    border-radius: var(--composer-radius);
+    border-radius: 4px;
+    padding: 1px 4px;
+  }
+  .actions { display: flex; gap: 8px; margin-top: var(--stack); }
+  .pill-thinking {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: var(--chip-height);
+    padding: 0 14px;
+    border-radius: calc(var(--chip-height) / 2);
+    background: var(--surface);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink-muted);
+    align-self: flex-start;
+  }
+
+  .composer-card {
+    border: 1px solid var(--line);
+    border-radius: var(--card-radius);
+    padding: 14px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .05);
+    margin-bottom: var(--stack);
+    flex: none;
+  }
+  .composer-row { display: flex; align-items: flex-end; gap: var(--stack); }
+  .composer-row .draft { flex: 1; font-size: 17px; color: var(--ink); line-height: 1.3; }
+  .composer-row .draft.empty { color: var(--placeholder); }
+  .send-circle {
+    width: var(--control-button);
+    height: var(--control-button);
+    border-radius: 50%;
+    background: var(--action);
+    color: #fff;
     display: flex;
     align-items: center;
-    gap: var(--stack);
-    padding: 0 20px;
+    justify-content: center;
+    flex: none;
   }
-  .composer .draft { flex: 1; font-size: 17px; color: var(--ink); }
-  .composer .draft.empty { color: var(--placeholder); }
-  .composer .send { color: var(--placeholder); display: flex; }
-  .composer .send.on { color: var(--ink); }
-  .gov-url { text-align: center; font-size: 10px; font-weight: 600; color: var(--ink-muted); padding-top: 6px; }
+  .send-circle.off { opacity: .4; }
+  .model-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: var(--stack);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ink-muted);
+  }
+  .model-row .grow { flex: 1; }
 </style>
 </head>
 <body>
@@ -295,14 +396,6 @@
     <path fill-rule="evenodd" fill="#ED2338"
       d="M678,408 L448,652 L562,656 L648,805 L838,805 Z
          M654,735 a62,62 0 1,0 124,0 a62,62 0 1,0 -124,0 Z"/>
-  </svg>
-</template>
-
-<template id="plane">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-       stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M21.6 2.4 L2.9 9.6c-.55.21-.53.99.03 1.17l7.2 2.3 2.3 7.2c.18.56.96.58 1.17.03z"/>
-    <path d="M21.6 2.4 L10.13 13.07"/>
   </svg>
 </template>
 
@@ -327,10 +420,49 @@ const L10n = {
   sessionID: 'Session ID:',
   expiresIn: 'Expires in:',
   copyright: '© 2026 ayiti.io from',
+
+  // Chat — must match L10n.Chat and ChatSuggestion.all in Swift.
   assistant: 'GOVTalk AI',
-  composer: 'what can i help you',
+  answer: 'Repons',
+  composer: 'Mande m nenpòt bagay…',
   thinking: 'GOVTalk ap reflechi…',
+  copy: 'Kopye',
+  retry: 'Reeseye',
+  share: 'Pataje',
+  greeting: (name) =>
+    name ? `Bonjou ${name}, kijan m ka ede w jodi a?` : 'Bonjou! Kijan m ka ede w jodi a?',
+  model: (name) => `GOVTalk · ${name}`,
+  suggestions: [
+    { label: 'Paspò', icon: 'airplane' },
+    { label: 'Kat idantite', icon: 'idCard' },
+    { label: 'Batistè', icon: 'doc' },
+    { label: 'Taks', icon: 'percent' },
+    { label: 'Jwenn yon biwo', icon: 'mappin' },
+  ],
 };
+
+// Stand-ins for the SF Symbols the app uses; SF Pro is not available here.
+const ICONS = {
+  airplane: '<path d="M21 3 3 10.5l7.5 3L13.5 21 21 3z"/>',
+  idCard: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><circle cx="8" cy="11" r="2"/>'
+    + '<path d="M5 16.5c.8-1.5 4.2-1.5 5 0"/><path d="M14.5 10.5h4M14.5 14h4"/>',
+  doc: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>'
+    + '<path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/>',
+  percent: '<circle cx="7.5" cy="7.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/><path d="M19 5 5 19"/>',
+  mappin: '<path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  copy: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/>',
+  retry: '<path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/>',
+  share: '<path d="M12 16V4"/><path d="m8 8 4-4 4 4"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/>',
+  arrowUp: '<path d="M12 19V5"/><path d="m6 11 6-6 6 6"/>',
+  stop: '<rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor" stroke="none"/>',
+  newChat: '<path d="M12 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"/>'
+    + '<path d="M18.5 3.5a2.1 2.1 0 0 1 3 3L13 15l-4 1 1-4z"/>',
+};
+
+const icon = (name, size = 15) =>
+  `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+     stroke-linejoin="round">${ICONS[name] ?? ''}</svg>`;
 
 // Straight out of the asset catalog so the preview cannot drift from the app.
 const PHOTOS = [
@@ -344,6 +476,7 @@ export const state = {
   slide: 0,
   username: 'Jean Baptiste',
   govURLID: 'gov.ayiti.io/jbaptiste',
+  aiModel: 'ellofive',
   showProfileOnLastSlide: false,
   hid: '',
   pin: '',
@@ -362,19 +495,17 @@ const mark = (size) => {
   return svg.outerHTML;
 };
 
-const plane = () => {
-  const svg = document.getElementById('plane').content.firstElementChild.cloneNode(true);
-  svg.setAttribute('width', 26);
-  svg.setAttribute('height', 26);
-  return svg.outerHTML;
-};
-
 const lockup = (onPhoto = false) =>
   `<div class="lockup${onPhoto ? ' on-photo' : ''}">${mark(34)}<span class="wordmark">ayiti.io</span></div>`;
 const avatar = (size, initial) =>
   `<div class="avatar" style="width:${size}px;height:${size}px;font-size:${size * 0.42}px">${initial ?? ''}</div>`;
 const initial = () => (state.username ? state.username[0].toUpperCase() : '');
 const esc = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+// Mirrors AttributedString(markdown:.inlineOnlyPreservingWhitespace): inline
+// emphasis renders, block structure such as list dashes stays literal.
+const inlineMarkdown = (s) => esc(s)
+  .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+  .replace(/`([^`]+)`/g, '<code>$1</code>');
 
 function onboarding() {
   const last = state.slide === L10n.slides.length - 1;
@@ -441,32 +572,67 @@ function signin() {
 }
 
 function chat() {
-  const rows = state.messages.map((m) => `
-    <div class="row ${m.author}">
-      <div class="attribution ${m.author}">
-        ${m.author === 'assistant'
-          ? `<span>${L10n.assistant}</span>${mark(14)}`
-          : `<span>${esc(state.username)}</span>${avatar(24, initial())}`}
-      </div>
-      <div class="text">${esc(m.text)}</div>
-    </div>`).join('');
+  const empty = state.messages.length === 0;
+
+  const chips = L10n.suggestions
+    .map((s) => `<span class="chip"><span class="ic">${icon(s.icon)}</span>${esc(s.label)}</span>`)
+    .join('');
+
+  const body = empty
+    ? `<div class="empty">
+         ${mark(64)}
+         <div class="greeting">${esc(L10n.greeting(state.username))}</div>
+         <div class="chips">${chips}</div>
+       </div>`
+    : `<div class="transcript">
+         ${state.messages.map(messageRow).join('')}
+         ${state.replying
+           ? `<div class="pill-thinking">${mark(14)}${L10n.thinking}</div>`
+           : ''}
+       </div>`;
 
   return `
   <section class="screen active">
     <div class="chat-header">
       ${lockup()}
-      <div class="who"><span>${esc(state.username)}</span>${avatar(44, initial())}</div>
+      <span class="grow"></span>
+      ${empty ? '' : `<span class="circle-btn">${icon('newChat', 18)}</span>`}
+      ${avatar(38, initial())}
     </div>
-    <div class="transcript">
-      ${rows}
-      ${state.replying ? `<div class="thinking">${L10n.thinking}</div>` : ''}
+    ${body}
+    <div class="composer-card">
+      <div class="composer-row">
+        <span class="draft ${state.draft ? '' : 'empty'}">${esc(state.draft || L10n.composer)}</span>
+        <span class="send-circle ${state.draft && !state.replying ? '' : 'off'}">
+          ${state.replying ? icon('stop', 20) : icon('arrowUp', 20)}
+        </span>
+      </div>
+      <div class="model-row">
+        ${mark(12)}<span>${esc(L10n.model(state.aiModel))}</span>
+        <span class="grow"></span>
+        <span>${esc(state.govURLID)}</span>
+      </div>
     </div>
-    <div class="composer">
-      <span class="draft ${state.draft ? '' : 'empty'}">${esc(state.draft || L10n.composer)}</span>
-      <span class="send ${state.draft && !state.replying ? 'on' : ''}">${plane()}</span>
-    </div>
-    <div class="gov-url">${esc(state.govURLID)}</div>
   </section>`;
+}
+
+function messageRow(m) {
+  if (m.author === 'citizen') {
+    return `<div class="bubble">${esc(m.text)}</div>`;
+  }
+  const actions = [
+    ['copy', L10n.copy],
+    ['retry', L10n.retry],
+    ['share', L10n.share],
+  ].map(([ic, label]) =>
+    `<span class="chip"><span class="ic">${icon(ic)}</span>${label}</span>`).join('');
+
+  return `
+    <div>
+      <div class="answer-head">${mark(15)}${L10n.answer}</div>
+      <div class="answer-text">${inlineMarkdown(m.text)}</div>
+      <div class="actions">${actions}</div>
+    </div>`;
 }
 
 export function render() {
@@ -479,13 +645,6 @@ window.GovAppPreview = { state, render, photos: PHOTOS };
 const params = new URLSearchParams(location.search);
 if (params.get('screen')) state.screen = params.get('screen');
 if (params.get('slide')) state.slide = Number(params.get('slide'));
-
-if (state.screen === 'chat' && state.messages.length === 0) {
-  state.messages = [
-    { author: 'assistant', text: `Bonjou ${state.username}! Kijan m ka ede w jodi a?` },
-    { author: 'citizen', text: 'Mèsi Gov Ayiti, èske ou gen yon adrès?' },
-  ];
-}
 
 render();
 </script>

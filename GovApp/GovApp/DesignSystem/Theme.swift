@@ -43,6 +43,10 @@ extension Brand {
         static let title = SwiftUI.Font.system(size: 28, weight: .bold)
         static let body = SwiftUI.Font.system(size: 17, weight: .regular)
         static let buttonLabel = SwiftUI.Font.system(size: 17, weight: .semibold)
+        /// Suggestion chips and message action buttons.
+        static let chip = SwiftUI.Font.system(size: 15, weight: .medium)
+        /// Section headers inside the transcript, e.g. "Repons".
+        static let sectionLabel = SwiftUI.Font.system(size: 15, weight: .semibold)
         static let caption = SwiftUI.Font.system(size: 13, weight: .regular)
         static let micro = SwiftUI.Font.system(size: 10, weight: .semibold)
 
@@ -55,9 +59,13 @@ extension Brand {
         /// Horizontal inset applied to every screen.
         static let gutter: CGFloat = 24
         static let fieldHeight: CGFloat = 56
-        static let composerHeight: CGFloat = 64
         static let radius: CGFloat = 12
-        static let composerRadius: CGFloat = 16
+        /// Citizen message bubbles.
+        static let bubbleRadius: CGFloat = 20
+        static let cardRadius: CGFloat = 24
+        static let chipHeight: CGFloat = 38
+        /// Circular controls: send, mic, new chat.
+        static let controlButton: CGFloat = 44
         /// Gap between stacked controls in the same group.
         static let stack: CGFloat = 12
         /// Gap between distinct groups.

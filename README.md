@@ -18,10 +18,10 @@ Onboarding is three full-bleed photographs of Haiti that snap from page to page:
 
 Then sign-in and the assistant:
 
-| Sign in | GOVTalk AI |
-| --- | --- |
-| <img alt="Sign-in screen" src="docs/screen-signin.png" width="240" /> | <img alt="GOVTalk AI chat screen" src="docs/screen-chat.png" width="240" /> |
-| HID and PIN above the live grant countdown and masked session footer. | Conversation with the assistant, composer pinned to the bottom. |
+| Sign in | GOVTalk AI | In conversation |
+| --- | --- | --- |
+| <img alt="Sign-in screen" src="docs/screen-signin.png" width="240" /> | <img alt="GOVTalk AI empty state" src="docs/screen-chat-empty.png" width="240" /> | <img alt="GOVTalk AI answering a question" src="docs/screen-chat.png" width="240" /> |
+| HID and PIN above the live grant countdown and masked session footer. | Greeting and starter chips for the services citizens ask about most. | Answers carry a source header and copy, retry, and share actions. |
 
 ### Walkthrough
 

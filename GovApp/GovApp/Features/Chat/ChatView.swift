@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// GOVTalk AI — the signed-in conversation screen.
 struct ChatView: View {
@@ -17,7 +18,6 @@ struct ChatView: View {
         .task {
             let model = model ?? ChatViewModel(chat: services.chat)
             self.model = model
-            model.greet(session.username)
             await model.probeAvailability()
         }
     }
@@ -35,20 +35,18 @@ private struct ChatContent: View {
         VStack(spacing: 0) {
             header
 
-            transcript
+            if model.isEmpty {
+                emptyState
+            } else {
+                transcript
+            }
 
-            if model.isOffline {
-                NoticeBanner(message: model.notice ?? L10n.Chat.offline)
-                    .padding(.horizontal, Brand.Metric.gutter)
+            if let notice = model.notice {
+                NoticeBanner(message: notice)
                     .padding(.bottom, Brand.Metric.stack)
             }
 
             composer
-
-            Text(session.govURLID)
-                .font(Brand.Font.micro)
-                .foregroundStyle(Brand.inkMuted)
-                .padding(.top, 6)
         }
         .padding(.horizontal, Brand.Metric.gutter)
         .confirmationDialog(
@@ -60,40 +58,77 @@ private struct ChatContent: View {
         }
     }
 
+    // MARK: - Header
+
     private var header: some View {
-        HStack {
-            AyitiLockup()
-            Spacer()
-            Text(session.username)
-                .font(Brand.Font.body)
-                .foregroundStyle(Brand.ink)
+        HStack(spacing: Brand.Metric.stack) {
+            AyitiLockup(height: 28)
+            Spacer(minLength: 0)
+
+            if !model.isEmpty {
+                CircleIconButton(systemImage: "square.and.pencil", size: 38) {
+                    model.startNewChat()
+                }
+                .accessibilityLabel(L10n.Chat.newChat)
+            }
+
             Button {
                 isConfirmingSignOut = true
             } label: {
-                AvatarCircle(size: 44, initial: session.initial)
+                AvatarCircle(size: 38, initial: session.initial)
             }
             .accessibilityLabel(L10n.Chat.signOut)
         }
         .padding(.top, 8)
-        .padding(.bottom, Brand.Metric.section)
+        .padding(.bottom, Brand.Metric.stack)
     }
+
+    // MARK: - Empty state
+
+    private var emptyState: some View {
+        VStack(spacing: 0) {
+            Spacer(minLength: 0)
+
+            AyitiMark(height: 64)
+
+            Text(L10n.Chat.greeting(session.username))
+                .font(Brand.Font.title)
+                .foregroundStyle(Brand.ink)
+                .multilineTextAlignment(.center)
+                .padding(.top, Brand.Metric.section)
+
+            FlowLayout(spacing: 8, lineSpacing: 8) {
+                ForEach(ChatSuggestion.all) { suggestion in
+                    BrandChip(title: suggestion.label, systemImage: suggestion.systemImage) {
+                        model.startSuggestion(suggestion, from: sessions)
+                    }
+                }
+            }
+            .padding(.top, Brand.Metric.section)
+
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    // MARK: - Transcript
 
     private var transcript: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: Brand.Metric.section) {
                     ForEach(model.messages) { message in
-                        MessageRow(message: message, username: session.username, initial: session.initial)
-                            .id(message.id)
+                        MessageView(message: message) {
+                            model.startRetry(from: sessions)
+                        }
+                        .id(message.id)
                     }
+
                     if model.isReplying {
-                        Text(L10n.Chat.thinking)
-                            .font(Brand.Font.caption)
-                            .foregroundStyle(Brand.inkMuted)
-                            .id(Self.thinkingAnchor)
+                        GeneratingPill().id(Self.thinkingAnchor)
                     }
                 }
-                .padding(.bottom, Brand.Metric.section)
+                .padding(.vertical, Brand.Metric.stack)
             }
             .scrollIndicators(.hidden)
             .scrollDismissesKeyboard(.interactively)
@@ -108,98 +143,179 @@ private struct ChatContent: View {
         }
     }
 
-    private var composer: some View {
-        HStack(spacing: Brand.Metric.stack) {
-            TextField(
-                "",
-                text: $model.draft,
-                prompt: Text(L10n.Chat.composerPlaceholder).foregroundColor(Brand.placeholder),
-                axis: .vertical
-            )
-            .lineLimit(1...4)
-            .font(Brand.Font.body)
-            .foregroundStyle(Brand.ink)
-            .focused($isComposerFocused)
-            .submitLabel(.send)
-            .accessibilityLabel(L10n.Chat.composerPlaceholder)
+    // MARK: - Composer
 
-            Button {
-                Task { await model.send(from: sessions) }
-            } label: {
-                Image(systemName: "paperplane")
-                    .font(.system(size: 26, weight: .regular))
-                    .foregroundStyle(model.canSend ? Brand.ink : Brand.placeholder)
+    private var composer: some View {
+        VStack(spacing: Brand.Metric.stack) {
+            HStack(alignment: .bottom, spacing: Brand.Metric.stack) {
+                TextField(
+                    "",
+                    text: $model.draft,
+                    prompt: Text(L10n.Chat.composerPlaceholder)
+                        .foregroundColor(Brand.placeholder),
+                    axis: .vertical
+                )
+                .lineLimit(1...5)
+                .font(Brand.Font.body)
+                .foregroundStyle(Brand.ink)
+                .focused($isComposerFocused)
+                .accessibilityLabel(L10n.Chat.composerPlaceholder)
+
+                if model.isReplying {
+                    CircleIconButton(systemImage: "stop.fill", filled: true) {
+                        model.stop()
+                    }
+                    .accessibilityLabel(L10n.General.stop)
+                } else {
+                    CircleIconButton(
+                        systemImage: "arrow.up",
+                        filled: true,
+                        isEnabled: model.canSend
+                    ) {
+                        model.startSend(from: sessions)
+                    }
+                    .accessibilityLabel(L10n.Chat.send)
+                }
             }
-            .disabled(!model.canSend)
-            .accessibilityLabel(L10n.Chat.send)
+
+            HStack(spacing: 6) {
+                AyitiMark(height: 12)
+                Text(L10n.Chat.model(AppConfig.current.aiModel))
+                    .font(Brand.Font.micro)
+                    .foregroundStyle(Brand.inkMuted)
+                Spacer(minLength: 0)
+                Text(session.govURLID)
+                    .font(Brand.Font.micro)
+                    .foregroundStyle(Brand.inkMuted)
+            }
         }
-        .padding(.horizontal, 20)
-        .frame(minHeight: Brand.Metric.composerHeight)
+        .padding(14)
         .background(
-            RoundedRectangle(cornerRadius: Brand.Metric.composerRadius, style: .continuous)
-                .fill(Brand.surface)
+            RoundedRectangle(cornerRadius: Brand.Metric.cardRadius, style: .continuous)
+                .fill(Brand.background)
+                .overlay(
+                    RoundedRectangle(cornerRadius: Brand.Metric.cardRadius, style: .continuous)
+                        .strokeBorder(Brand.line)
+                )
+                .shadow(color: .black.opacity(0.05), radius: 16, y: 4)
         )
+        .padding(.bottom, Brand.Metric.stack)
     }
 
     private static let thinkingAnchor = "govtalk.thinking"
 }
 
-private struct MessageRow: View {
-    let message: ChatMessage
-    let username: String
-    let initial: String
+// MARK: - Messages
 
-    /// Inset applied to the opposite edge so the two speakers read as columns.
-    private let columnInset: CGFloat = 56
+private struct MessageView: View {
+    let message: ChatMessage
+    let onRetry: () -> Void
 
     var body: some View {
-        VStack(alignment: .trailing, spacing: 8) {
-            attribution
+        switch message.author {
+        case .citizen: citizenBubble
+        case .assistant: assistantAnswer
+        }
+    }
+
+    private var citizenBubble: some View {
+        HStack {
+            Spacer(minLength: 44)
             Text(message.text)
                 .font(Brand.Font.body)
                 .foregroundStyle(Brand.ink)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .multilineTextAlignment(.leading)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: Brand.Metric.bubbleRadius, style: .continuous)
+                        .fill(Brand.surface)
+                )
         }
-        .padding(.leading, message.author == .citizen ? columnInset : 0)
-        .padding(.trailing, message.author == .assistant ? columnInset : 0)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .accessibilityElement(children: .combine)
+        .frame(maxWidth: .infinity, alignment: .trailing)
     }
 
-    private var attribution: some View {
-        HStack(spacing: 6) {
-            Spacer(minLength: 0)
-            switch message.author {
-            case .assistant:
-                Text(L10n.Chat.assistant)
-                    .font(Brand.Font.micro)
+    private var assistantAnswer: some View {
+        VStack(alignment: .leading, spacing: Brand.Metric.stack) {
+            HStack(spacing: 7) {
+                AyitiMark(height: 15)
+                Text(L10n.Chat.answer)
+                    .font(Brand.Font.sectionLabel)
                     .foregroundStyle(Brand.ink)
-                AyitiMark(height: 14)
-            case .citizen:
-                Text(username)
-                    .font(Brand.Font.micro)
-                    .foregroundStyle(Brand.inkMuted)
-                AvatarCircle(size: 24, initial: initial)
             }
+
+            Text(formatted)
+                .font(Brand.Font.body)
+                .foregroundStyle(Brand.ink)
+                .fixedSize(horizontal: false, vertical: true)
+                .textSelection(.enabled)
+
+            actions
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var actions: some View {
+        HStack(spacing: 8) {
+            BrandChip(title: L10n.Chat.copy, systemImage: "doc.on.doc") {
+                UIPasteboard.general.string = message.text
+            }
+            BrandChip(title: L10n.Chat.retry, systemImage: "arrow.clockwise", action: onRetry)
+            ShareLink(item: message.text) {
+                ChipLabel(title: L10n.Chat.share, systemImage: "square.and.arrow.up")
+            }
+            .buttonStyle(.plain)
+            Spacer(minLength: 0)
+        }
+    }
+
+    /// The model replies in markdown. Inline-only parsing keeps bold and code
+    /// spans while leaving line breaks and list dashes exactly as sent — full
+    /// block parsing would collapse them, since SwiftUI's `Text` cannot render
+    /// list presentation intents anyway.
+    private var formatted: AttributedString {
+        (try? AttributedString(
+            markdown: message.text,
+            options: AttributedString.MarkdownParsingOptions(
+                interpretedSyntax: .inlineOnlyPreservingWhitespace
+            )
+        )) ?? AttributedString(message.text)
     }
 }
 
-#Preview("GOVTalk") {
+private struct GeneratingPill: View {
+    @State private var pulse = false
+
+    var body: some View {
+        HStack(spacing: 8) {
+            AyitiMark(height: 14)
+            Text(L10n.Chat.thinking)
+                .font(Brand.Font.chip)
+                .foregroundStyle(Brand.inkMuted)
+        }
+        .padding(.horizontal, 14)
+        .frame(height: Brand.Metric.chipHeight)
+        .background(
+            Capsule()
+                .fill(Brand.surface)
+        )
+        .opacity(pulse ? 0.55 : 1)
+        .animation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true), value: pulse)
+        .onAppear { pulse = true }
+    }
+}
+
+#Preview("Empty") {
     ChatView(session: .preview)
         .environment(SessionStore(secrets: InMemorySecretStore(), defaults: .previewSuite))
         .environment(\.services, .stub)
 }
 
-#Preview("Offline") {
+#Preview("Conversation") {
     ChatView(session: .preview)
         .environment(SessionStore(secrets: InMemorySecretStore(), defaults: .previewSuite))
         .environment(
             \.services,
-            Services(
-                identity: StubIdentityService(),
-                chat: StubChatService(reachable: false)
-            )
+            Services(identity: StubIdentityService(), chat: StubChatService())
         )
 }

@@ -60,6 +60,74 @@ struct BrandButton: View {
     }
 }
 
+/// The outlined pill shape used for chat suggestions and message actions.
+///
+/// Split from `BrandChip` so non-button controls — `ShareLink`, for one — can
+/// wear the same shape without faking a button.
+struct ChipLabel: View {
+    let title: String
+    var systemImage: String?
+    var tint: Color = Brand.ink
+
+    var body: some View {
+        HStack(spacing: 6) {
+            if let systemImage {
+                Image(systemName: systemImage)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Brand.action)
+            }
+            Text(title)
+                .font(Brand.Font.chip)
+                .foregroundStyle(tint)
+        }
+        .padding(.horizontal, 14)
+        .frame(height: Brand.Metric.chipHeight)
+        .background(
+            Capsule()
+                .fill(Brand.background)
+                .overlay(Capsule().strokeBorder(Brand.line))
+        )
+    }
+}
+
+struct BrandChip: View {
+    let title: String
+    var systemImage: String?
+    var tint: Color = Brand.ink
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            ChipLabel(title: title, systemImage: systemImage, tint: tint)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+/// Circular icon button: send, mic, new chat.
+struct CircleIconButton: View {
+    let systemImage: String
+    var filled = false
+    var size: CGFloat = Brand.Metric.controlButton
+    var isEnabled = true
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
+                .font(.system(size: size * 0.4, weight: .semibold))
+                .foregroundStyle(filled ? Brand.background : Brand.inkMuted)
+                .frame(width: size, height: size)
+                .background(
+                    Circle().fill(filled ? Brand.action : Brand.surface)
+                )
+        }
+        .buttonStyle(.plain)
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1 : 0.4)
+    }
+}
+
 /// Placeholder avatar. Renders the citizen's initial once a session exists.
 struct AvatarCircle: View {
     var size: CGFloat = 44

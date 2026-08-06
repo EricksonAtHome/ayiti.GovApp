@@ -34,10 +34,15 @@ const GOV_URL = 'gov.ayiti.io/jbaptiste';
 const HID = 'HT-4417-9082';
 const PIN = '4471';
 const QUESTION = 'Kilè paspò mwen an ap pare?';
-const ANSWER = 'Paspò ou an pare depi 2 jou. Ou ka vin chèche l nan biwo '
-  + 'imigrasyon Pòtoprens, lendi a vandredi, 8:00–14:00.';
+const ANSWER = `Paspò ou an **pare depi 2 jou**.
 
-const GREETING = { author: 'assistant', text: `Bonjou ${CITIZEN}! Kijan m ka ede w jodi a?` };
+Pou vin chèche l:
+- Biwo imigrasyon Pòtoprens, Delmas 33
+- Lendi a vandredi, 8:00–14:00
+- Pote kat idantite ou ak resi a`;
+
+const ASKED = { author: 'citizen', text: QUESTION };
+const ANSWERED = { author: 'assistant', text: ANSWER };
 
 /** Applies a patch to the page's preview state and re-renders. */
 const set = (page, patch) =>
@@ -80,12 +85,11 @@ async function screenshots(page) {
   await shoot(page, resolve(docs, 'screen-signin.png'));
   console.log('wrote docs/screen-signin.png');
 
-  await set(page, {
-    screen: 'chat',
-    username: CITIZEN,
-    govURLID: GOV_URL,
-    messages: [GREETING, { author: 'citizen', text: 'Mèsi Gov Ayiti, èske ou gen yon adrès?' }],
-  });
+  await set(page, { screen: 'chat', username: CITIZEN, govURLID: GOV_URL, messages: [] });
+  await shoot(page, resolve(docs, 'screen-chat-empty.png'));
+  console.log('wrote docs/screen-chat-empty.png');
+
+  await set(page, { messages: [ASKED, ANSWERED] });
   await shoot(page, resolve(docs, 'screen-chat.png'));
   console.log('wrote docs/screen-chat.png');
 }
@@ -122,24 +126,15 @@ function storyboard() {
 
   // Tap "Konekte".
   hold(18, { working: true });
-  hold(26, { screen: 'chat', working: false, messages: [GREETING] });
+
+  // The chat opens on its empty state: greeting plus suggestion chips.
+  hold(34, { screen: 'chat', working: false, messages: [] });
 
   // Ask GOVTalk a question.
   for (let i = 1; i <= QUESTION.length; i++) hold(1, { draft: QUESTION.slice(0, i) });
   hold(10);
-  hold(22, {
-    draft: '',
-    replying: true,
-    messages: [GREETING, { author: 'citizen', text: QUESTION }],
-  });
-  hold(48, {
-    replying: false,
-    messages: [
-      GREETING,
-      { author: 'citizen', text: QUESTION },
-      { author: 'assistant', text: ANSWER },
-    ],
-  });
+  hold(24, { draft: '', replying: true, messages: [ASKED] });
+  hold(54, { replying: false, messages: [ASKED, ANSWERED] });
 
   return beats;
 }

@@ -76,9 +76,12 @@ struct StubChatService: ChatService {
     var canned = "Paspò ou an pare pou w vin chèche l nan biwo imigrasyon an."
     var delay: Duration = .milliseconds(400)
     var reachable = true
+    /// Forces `reply` to throw, for exercising a specific error path.
+    var failure: AppError?
 
     func reply(to prompt: String, history: [ChatMessage]) async throws -> String {
         try? await Task.sleep(for: delay)
+        if let failure { throw failure }
         guard reachable else { throw AppError.assistantUnavailable }
         return canned
     }

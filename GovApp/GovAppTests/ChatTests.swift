@@ -89,12 +89,72 @@ final class ChatViewModelTests: XCTestCase {
     }
 
     @MainActor
-    func testGreetingIsSeededOnceAndOnlyWhenEmpty() async {
-        let model = ChatViewModel(chat: StubChatService())
-        model.greet("Jean")
-        model.greet("Jean")
+    func testANewModelIsEmptySoTheGreetingStateShows() async {
+        XCTAssertTrue(ChatViewModel(chat: StubChatService()).isEmpty)
+    }
 
-        XCTAssertEqual(model.messages.count, 1)
-        XCTAssertEqual(model.messages.first?.author, .assistant)
+    @MainActor
+    func testASuggestionIsSentLikeATypedMessage() async {
+        let model = ChatViewModel(chat: StubChatService(canned: "Repons", delay: .zero))
+        let suggestion = ChatSuggestion.all[0]
+
+        await model.submit(suggestion.prompt, from: makeSessions())
+
+        XCTAssertEqual(model.messages.count, 2)
+        XCTAssertEqual(model.messages.first?.text, suggestion.prompt)
+        XCTAssertEqual(model.messages.first?.author, .citizen)
+        XCTAssertFalse(model.isEmpty)
+    }
+
+    @MainActor
+    func testRetryReplacesTheLastAnswerWithoutRepeatingTheQuestion() async {
+        let model = ChatViewModel(chat: StubChatService(canned: "Premye", delay: .zero))
+        let sessions = makeSessions()
+        model.draft = "Bonjou"
+        await model.send(from: sessions)
+
+        await model.retryLast(from: sessions)
+
+        XCTAssertEqual(model.messages.count, 2, "the question is asked once, not twice")
+        XCTAssertEqual(model.messages.first?.text, "Bonjou")
+        XCTAssertEqual(model.messages.last?.author, .assistant)
+    }
+
+    @MainActor
+    func testRetryOnAnEmptyTranscriptDoesNothing() async {
+        let model = ChatViewModel(chat: StubChatService(delay: .zero))
+
+        await model.retryLast(from: makeSessions())
+
+        XCTAssertTrue(model.messages.isEmpty)
+    }
+
+    @MainActor
+    func testNewChatClearsTheTranscriptAndTheDraft() async {
+        let model = ChatViewModel(chat: StubChatService(delay: .zero))
+        model.draft = "Bonjou"
+        await model.send(from: makeSessions())
+        model.draft = "yon lòt bagay"
+
+        model.startNewChat()
+
+        XCTAssertTrue(model.isEmpty)
+        XCTAssertTrue(model.draft.isEmpty)
+        XCTAssertNil(model.notice)
+    }
+
+    /// Stopping is the citizen's choice, so it must not look like a failure.
+    @MainActor
+    func testACanceledReplyLeavesNoErrorBehind() async {
+        let model = ChatViewModel(
+            chat: StubChatService(delay: .zero, failure: .canceled)
+        )
+        model.draft = "Bonjou"
+
+        await model.send(from: makeSessions())
+
+        XCTAssertNil(model.notice)
+        XCTAssertFalse(model.isOffline)
+        XCTAssertEqual(model.messages.count, 1, "only the citizen's turn was recorded")
     }
 }

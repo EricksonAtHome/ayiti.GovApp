@@ -47,9 +47,11 @@ System font (SF Pro) throughout.
 | --- | --- |
 | `Brand.Metric.gutter` | 24 (screen horizontal inset) |
 | `Brand.Metric.fieldHeight` | 56 |
-| `Brand.Metric.composerHeight` | 64 |
 | `Brand.Metric.radius` | 12 (fields, buttons) |
-| `Brand.Metric.composerRadius` | 16 |
+| `Brand.Metric.bubbleRadius` | 20 (citizen message) |
+| `Brand.Metric.cardRadius` | 24 (composer card) |
+| `Brand.Metric.chipHeight` | 38 (suggestions, message actions) |
+| `Brand.Metric.controlButton` | 44 (send, stop) |
 | `Brand.Metric.stack` | 12 (gap between stacked fields) |
 | `Brand.Metric.section` | 28 (gap between groups) |
 | `Brand.Metric.progressTrack` | 3 (onboarding page indicator) |
@@ -96,23 +98,41 @@ The session ID shows only the last six characters, always masked with `***`.
 
 ### 2. GOVTalk chat — `Features/Chat/ChatView.swift`
 
-Header: `AyitiLockup` left, `{username}` + 44pt avatar circle right.
+Header: `AyitiLockup` at 28pt, a spacer, a "new chat" `CircleIconButton` that
+appears only once the transcript has something in it, and a 38pt avatar that
+opens the sign-out dialog.
 
-Messages scroll between header and composer. Each message shows a small
-right-aligned attribution row above its text:
+**Empty state** (`model.isEmpty`) — centred vertically: a 64pt `AyitiMark`, the
+greeting in `title` size, then `ChatSuggestion.all` as `BrandChip`s in a
+`FlowLayout` so they wrap and centre. Tapping a chip calls the same `submit`
+path as typing, so a suggestion is indistinguishable from a typed message.
 
-- Assistant: "GOVTalk AI" in `micro` + a 14pt `AyitiMark`.
-- Citizen: `{username}` in `micro` + a 24pt avatar circle.
+**Transcript** — `section` spacing between turns.
 
-Message text is plain — `body` size on the background, no bubble fill. Each row
-is inset 56pt on the edge opposite its speaker (citizen rows from the leading
-edge, assistant rows from the trailing edge) so the two read as distinct
-columns without needing bubbles.
+- Citizen: a `Brand.surface` bubble at `bubbleRadius`, trailing-aligned, with a
+  44pt minimum gap on its leading edge so it never spans the full width.
+- Assistant: a header row of a 15pt `AyitiMark` plus "Repons" in `sectionLabel`,
+  then the reply in `body`, then an action row of `Kopye` / `Reeseye` / `Pataje`
+  chips. `Pataje` is a real `ShareLink` wearing `ChipLabel`, not a button that
+  imitates one.
 
-Composer pinned to the bottom: a `Brand.surface` rounded rect at
-`composerRadius`, 64pt tall, placeholder "what can i help you", with a
-paper-plane send button trailing. Send is disabled while the input is empty or a
-reply is in flight. Below it, `{gov.url.id}` centered in `micro`.
+Replies are parsed with `AttributedString(markdown:)` using
+`.inlineOnlyPreservingWhitespace`, so `**bold**` and `` `code` `` render while
+line breaks and list dashes stay exactly as the model sent them. Full block
+parsing would collapse them, and SwiftUI's `Text` cannot draw list intents.
+
+While a reply is in flight, a pulsing pill on `Brand.surface` shows
+"GOVTalk ap reflechi…".
+
+**Composer** — a white card at `cardRadius` with a `Brand.line` border and a
+soft shadow, pinned to the bottom. Inside: the field (1–5 lines), then a
+`controlButton` circle in `Brand.action` — an up arrow that sends, replaced by a
+stop square while a reply is running. Under that, a `micro` row with the mark,
+the live `AppConfig.aiModel`, and `{gov.url.id}`.
+
+There is deliberately **no microphone button**. The references have one, but
+GovApp has no dictation, and a control that does nothing is worse than an
+absent one. Add the button when the feature exists.
 
 ### 3. Onboarding — `Features/Onboarding/OnboardingView.swift`
 

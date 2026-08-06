@@ -9,6 +9,7 @@ enum L10n {
         static let brand = "ayiti.io"
         static let repiblik = "Repiblik"
         static let ayiti = "Ayiti"
+        static let stop = "Kanpe"
     }
 
     enum Onboarding {
@@ -40,18 +41,27 @@ enum L10n {
 
     enum Chat {
         static let assistant = "GOVTalk AI"
-        static let composerPlaceholder = "what can i help you"
+        /// Header above every model reply.
+        static let answer = "Repons"
+        static let composerPlaceholder = "Mande m nenpòt bagay…"
         static let send = "Voye"
+        static let newChat = "Nouvo konvèsasyon"
+        static let copy = "Kopye"
+        static let copied = "Kopye"
+        static let retry = "Reeseye"
+        static let share = "Pataje"
         static let offline = "GOVTalk pa konekte. Tcheke sèvè ElloFive la."
         static let thinking = "GOVTalk ap reflechi…"
         static let signOut = "Dekonekte"
 
-        /// Seeded locally when the screen opens; never comes from the model.
+        /// Shown on the empty state, never sent to the model.
         static func greeting(_ name: String) -> String {
             name.isEmpty
                 ? "Bonjou! Kijan m ka ede w jodi a?"
-                : "Bonjou \(name)! Kijan m ka ede w jodi a?"
+                : "Bonjou \(name), kijan m ka ede w jodi a?"
         }
+
+        static func model(_ name: String) -> String { "GOVTalk · \(name)" }
 
         /// Prepended to every request so the model answers as GOVTalk rather
         /// than as ElloFive. Kept short — it is re-sent on every turn.
