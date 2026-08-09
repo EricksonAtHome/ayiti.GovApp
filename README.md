@@ -164,3 +164,7 @@ picks up the project's conventions automatically.
 - `Session` and `Credentials` have redacted `description`s; keep them that way.
 - The ElloFive bridge is unauthenticated, so nothing from `Session` and no
   personal data may appear in a prompt.
+
+
+
+
