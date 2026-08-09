@@ -1,13 +1,20 @@
 #!/usr/bin/env python3
-"""Render the ayiti.io app icon from the same geometry as AyitiMark.swift.
+"""Render a reference app icon from the same geometry as AyitiMark.swift.
 
-The coordinates below are the single source of truth shared with
-GovApp/DesignSystem/AyitiMark.swift and the skill's DESIGN.md. Change them in
-all three or not at all.
+The checked-in AppIcon-1024.png is the **official artwork supplied by the brand
+owner**, not this script's output: it carries softly rounded corners that the
+in-app vector mark does not. So this script refuses to overwrite it unless you
+ask, and exists to check the geometry still agrees:
 
-    python3 Tools/generate-appicon.py
+    python3 Tools/generate-appicon.py --out /tmp/reference.png   # compare
+    python3 Tools/generate-appicon.py --force                    # replace
+
+The coordinates below are shared with GovApp/DesignSystem/AyitiMark.swift and
+the skill's DESIGN.md. Change them in all three or not at all.
 """
 
+import argparse
+import sys
 from pathlib import Path
 
 from PIL import Image, ImageDraw
@@ -49,9 +56,27 @@ def render(size: int) -> Image.Image:
 
 
 def main() -> None:
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    render(1024).convert("RGB").save(OUTPUT, "PNG", optimize=True)
-    print(f"wrote {OUTPUT}")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--out", type=Path, default=OUTPUT)
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="overwrite the official artwork at the default path",
+    )
+    args = parser.parse_args()
+
+    if args.out == OUTPUT and OUTPUT.exists() and not args.force:
+        print(
+            f"refusing to overwrite the official artwork at {OUTPUT}.\n"
+            "Pass --out to render a reference elsewhere, or --force if you "
+            "really mean to replace it.",
+            file=sys.stderr,
+        )
+        raise SystemExit(1)
+
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    render(1024).convert("RGB").save(args.out, "PNG", optimize=True)
+    print(f"wrote {args.out}")
 
 
 if __name__ == "__main__":

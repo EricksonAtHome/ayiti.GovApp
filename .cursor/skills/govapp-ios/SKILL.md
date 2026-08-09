@@ -40,7 +40,8 @@ picked up automatically. Do not hand-edit `project.pbxproj` to add a source file
 4. **Match the design tokens exactly.** Read `DESIGN.md` before writing a view;
    never invent a color, radius, or spacing value.
 5. **The logo is vector code, not a bitmap.** Use `AyitiMark` / `AyitiLockup`
-   from the design system so it stays crisp at every size.
+   from the design system so it stays crisp at every size. The one exception is
+   `AppIcon-1024.png`, which is official artwork — never regenerate over it.
 6. **The onboarding photographs are AI-generated placeholders.** They must be
    replaced with licensed photography before release. Keep the asset names and
    the 393:852 crop so nothing else has to change.

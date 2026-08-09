@@ -96,8 +96,13 @@ even-odd rule, so it knocks through to transparent instead of painting white:
 - Knockout circle: center `(716,735)`, radius `62`
 
 Those coordinates live in `AyitiGeometry` **and** in
-`Tools/generate-appicon.py`, which renders `AppIcon-1024.png` from them. Change
-both together or the icon drifts from the in-app mark.
+`Tools/generate-appicon.py`. Change both together or they drift.
+
+`AppIcon-1024.png` is **official artwork supplied by the brand owner**, not the
+script's output — it carries softly rounded corners the vector mark does not,
+which is the right call at 1024px and invisible at the 12–64pt sizes the mark is
+used at in-app. The script therefore refuses to overwrite it without `--force`;
+run it with `--out` to render a reference and compare geometry.
 
 `AyitiLockup` places the mark beside the "ayiti.io" wordmark and is what screens
 should use as a header.

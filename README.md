@@ -50,6 +50,14 @@ Swipe through onboarding, sign in, then ask GOVTalk a question —
 The UI is in Haitian Creole (Kreyòl). All copy lives in
 [`GovApp/GovApp/L10n.swift`](GovApp/GovApp/L10n.swift).
 
+### Source design
+
+The screens above are built from this design file — the login, API-identity, and
+chat frames it defines are what `SignInView`, the grant flow, and `ChatView`
+implement.
+
+<img alt="The gov chat app design file: login, api id, and chat-app frames" src="docs/575547.png" width="720" />
+
 ### Palette
 
 Five colors, defined once in
